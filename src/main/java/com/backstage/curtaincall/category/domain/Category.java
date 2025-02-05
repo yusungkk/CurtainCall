@@ -53,8 +53,6 @@ public class Category {
 //    @OneToMany(mappedBy = "category")
 //    private List<Product> products = new ArrayList<>();
 
-    //    @Embedded
-//    private BaseEntity baseEntity;
     private Category(String name) {
         this.name = name;
     }
