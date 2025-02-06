@@ -14,7 +14,7 @@ public class S3Service {
 
     private final S3Client s3Client;
 
-    private static final String BUCKET_NAME = "concert-ticket-images";
+    private static final String BUCKET_NAME = "curtaincall-images";
 
     public String uploadFile(String fileName, InputStream inputStream, long fileSize) {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
