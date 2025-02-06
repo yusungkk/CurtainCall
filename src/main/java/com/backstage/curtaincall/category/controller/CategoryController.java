@@ -26,13 +26,22 @@ public class CategoryController {
 
     private final CategoryService categoryService;
 
-    // 전체 조회
+    // 삭제 되지않는 것만 전체 조회
     @GetMapping
-    public ResponseEntity<List<CategoryDto>> findAll(){
-        List<CategoryDto> CategoryDtos = categoryService.findAll();
+    public ResponseEntity<List<CategoryDto>> findAllNotDeleted(){
+        List<CategoryDto> CategoryDtos = categoryService.findAllNotDeleted();
 
         return new ResponseEntity<>(CategoryDtos, HttpStatus.OK);
     }
+
+    // 삭제 된 것만 전체 조회
+    @GetMapping("findAllDeleted")
+    public ResponseEntity<List<CategoryDto>> findAllDeleted(){
+        List<CategoryDto> CategoryDtos = categoryService.findAllDeleted();
+
+        return new ResponseEntity<>(CategoryDtos, HttpStatus.OK);
+    }
+
 
     //생성
     @PostMapping

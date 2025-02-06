@@ -17,9 +17,7 @@ spring:
         format_sql: true
 
     show-sql: true
-#    sql:
-#      init:
-#        mode: always
+
 
 logging:
   level:

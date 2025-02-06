@@ -18,9 +18,18 @@ public class CategoryService {
     private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
-    public List<CategoryDto> findAll() {
+    public List<CategoryDto> findAllNotDeleted() {
 
         List<Category> categories = categoryRepository.findAllNotDeleted();
+        List<CategoryDto> categoryDtos = categories.stream()
+                .map(Category::toDto).toList();
+        return categoryDtos;
+    }
+
+    @Transactional(readOnly = true)
+    public List<CategoryDto> findAllDeleted() {
+
+        List<Category> categories = categoryRepository.findAllDeleted();
         List<CategoryDto> categoryDtos = categories.stream()
                 .map(Category::toDto).toList();
         return categoryDtos;
