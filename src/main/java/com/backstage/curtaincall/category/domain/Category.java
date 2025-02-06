@@ -27,7 +27,6 @@ import org.hibernate.annotations.Where;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Table(name = "category")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
@@ -51,7 +50,7 @@ public class Category {
     @Builder.Default
     private List<Category> children = new ArrayList<>();
 
-    @Column(name = "deleted", nullable = false)
+    @Column(name = "is_deleted", nullable = false)
     private boolean deleted = false;
 
 // 양방향 참조 필요할 때 주석 풀기
