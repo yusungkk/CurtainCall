@@ -20,7 +20,7 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public List<CategoryDto> findAll() {
 
-        List<Category> categories = categoryRepository.findAll();
+        List<Category> categories = categoryRepository.findAllNotDeleted();
         List<CategoryDto> categoryDtos = categories.stream()
                 .map(Category::toDto).toList();
         return categoryDtos;
@@ -38,7 +38,7 @@ public class CategoryService {
         // 자식 카테고리인 경우 부모 설정
         if (parentId != null) {
 
-            Category parent = categoryRepository.findById(parentId)
+            Category parent = categoryRepository.findByIdAndDeletedFalse(parentId)
                     .orElseThrow(() -> new IllegalArgumentException("부모 ID가 없습니다."));
 
             // 루트 카테고리가 아닌 곳에서 카테고리를 추가하는 경우 오류 발생
@@ -59,7 +59,7 @@ public class CategoryService {
 
         validate(escapedName);
 
-        Category category = categoryRepository.findById(id)
+        Category category = categoryRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID가 없습니다."));
 
         category.updateName(escapedName);
@@ -81,12 +81,12 @@ public class CategoryService {
     public void delete(Long id) {
         Category category = categoryRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID가 없습니다."));
-        category.deleteCategory();
+        category.delete();
     }
 
     public void restore(Long id) {
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID가 없습니다."));
-        category.restoreCategory();
+        category.restore();
     }
 }

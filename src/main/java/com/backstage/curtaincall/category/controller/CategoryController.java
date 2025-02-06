@@ -45,7 +45,7 @@ public class CategoryController {
 
 
     //카테고리 수정
-    @PutMapping("update")
+    @PutMapping
     public ResponseEntity<CategoryDto> update(@Valid @RequestBody CategoryDto categoryDto){
 
         log.info("이름:{}, id:{}",categoryDto.getName(), categoryDto.getId());
@@ -54,7 +54,7 @@ public class CategoryController {
     }
 
     //카테고리 삭제
-    @DeleteMapping("delete/{categoryId}")
+    @DeleteMapping("{categoryId}")
     @ResponseStatus(HttpStatus.OK) //본문이 필요하지 않으니 ResponseStatus 사용
     public void delete(@PathVariable("categoryId") Long categoryId){
 

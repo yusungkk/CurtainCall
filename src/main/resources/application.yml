@@ -14,8 +14,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
         ddl-auto: validate
-    show-sql: true
+        format_sql: true
 
+    show-sql: true
 #    sql:
 #      init:
 #        mode: always
