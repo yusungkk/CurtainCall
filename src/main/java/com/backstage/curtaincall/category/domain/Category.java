@@ -22,32 +22,37 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-@Builder
+@Table(name = "category")
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "categories")
-@EntityListeners(AuditingEntityListener.class)
+@Builder
 public class Category {
 
     @Id
-    @Column(name="category_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "category_id")
     private Long id;
 
+    @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    @JoinColumn(name = "parent_id")
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_id")
     private Category parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore
     @Builder.Default
     private List<Category> children = new ArrayList<>();
+
+    @Column(name = "deleted", nullable = false)
+    private boolean deleted = false;
 
 // 양방향 참조 필요할 때 주석 풀기
 //    @OneToMany(mappedBy = "category")
@@ -70,9 +75,10 @@ public class Category {
         this.parent = parent;
     }
 
-    public void update(String name) {
+    public void updateName(String name) {
         this.name = name;
     }
+
 
     public boolean isNotRootCategory() {
         return parent != null;
@@ -85,6 +91,14 @@ public class Category {
                 .parentId(this.parent != null ? this.parent.getId() : null)
                 .name(this.name)
                 .build();
+    }
+
+    public void deleteCategory() {
+        this.deleted = true;
+    }
+
+    public void restoreCategory() {
+        this.deleted = false;
     }
 }
 
