@@ -15,8 +15,8 @@ spring:
   cloud:
     aws:
       credentials:
-        accessKey: AKIAVWABKC4475RVVSHO
-        secretKey: 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
+        accessKey:
+        secretKey:
       s3:
         bucket: curtaincall-image
       region:
