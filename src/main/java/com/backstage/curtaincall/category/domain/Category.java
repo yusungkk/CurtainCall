@@ -78,18 +78,6 @@ public class Category {
         return parent == null;
     }
 
-    public void deleteChildCategory() {
-        for(Category child: children){
-            child.deleted = true;
-        }
-    }
-
-    public void restoreChildCategory() {
-        for(Category child: children){
-            child.deleted = false;
-        }
-    }
-
 
     public CategoryDto toDto() {
 

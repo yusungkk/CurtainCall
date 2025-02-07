@@ -47,7 +47,7 @@ public class CategoryService {
         // 자식 카테고리인 경우 부모 설정
         if (parentId != null) {
 
-            Category parent = categoryRepository.findByIdAndNotDeleted(parentId)
+            Category parent = categoryRepository.findByIdNotDeleted(parentId)
                     .orElseThrow(() -> new IllegalArgumentException("부모 ID가 없습니다."));
 
             // 루트 카테고리가 아닌 곳에서 카테고리를 추가하는 경우 오류 발생
@@ -68,7 +68,7 @@ public class CategoryService {
 
         validate(escapedName);
 
-        Category category = categoryRepository.findByIdAndNotDeleted(id)
+        Category category = categoryRepository.findByIdNotDeleted(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID가 없습니다."));
 
         category.updateName(escapedName);
@@ -88,21 +88,23 @@ public class CategoryService {
 
 
     public void delete(Long id) {
-        Category category = categoryRepository.findByIdAndNotDeleted(id)
+        Category category = categoryRepository.findByIdNotDeleted(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID가 없습니다."));
 
+        // 부모카테고리면 자식카테고리 삭제
         if(category.isRootCategory()){
-            category.deleteChildCategory();
+            categoryRepository.softDeleteChildren(id);
         }
+        //자신 삭제
         category.delete();
     }
 
 
     public void restore(Long id) {
-        Category category = categoryRepository.findByIdAndDeleted(id)
+        Category category = categoryRepository.findByIdDeleted(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID가 없습니다."));
         if(category.isRootCategory()){
-            category.restoreChildCategory();
+            categoryRepository.restoreChildren(id);
         }
 
         category.restore();
