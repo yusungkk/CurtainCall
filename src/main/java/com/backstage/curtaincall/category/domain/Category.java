@@ -74,9 +74,22 @@ public class Category {
     }
 
 
-    public boolean isNotRootCategory() {
-        return parent != null;
+    public boolean isRootCategory() {
+        return parent == null;
     }
+
+    public void deleteChildCategory() {
+        for(Category child: children){
+            child.deleted = true;
+        }
+    }
+
+    public void restoreChildCategory() {
+        for(Category child: children){
+            child.deleted = false;
+        }
+    }
+
 
     public CategoryDto toDto() {
 
