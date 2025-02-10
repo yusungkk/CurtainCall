@@ -1,57 +1,59 @@
 package com.backstage.curtaincall.product.entity;
 
-import com.backstage.curtaincall.product.dto.ProductAddReq;
-import com.backstage.curtaincall.productDetail.entity.ProductDetail;
+import com.backstage.curtaincall.global.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Getter
+@Setter
+@Builder
 @Entity
-public class Product {
+public class Product extends BaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_id")
-    private Long id;
+    private Long productId;
 
-    private String name;
+    @NotBlank(message = "상품명을 입력해주세요.")
+    @Column(nullable = false, length = 50)
+    private String productName;
 
-    private Long categoryId;
+    // @JoinColumn(name = "category_id", nullable = false)
+    // private Long categoryId;
 
+    @NotBlank(message = "공연 장소를 입력해주세요.")
+    @Column(nullable = false, length = 50)
     private String place;
 
     private LocalDate startDate;
     private LocalDate endDate;
 
+    @Column(nullable = false)
+    @Min(value = 1, message = "러닝타임은 최소 1분 이상이어야 합니다.")
     private int runningTime;
 
+    @Column(nullable = false)
+    @Min(value = 0, message = "가격은 0 이상이어야 합니다.")
     private int price;
 
     private String casting;
 
     private String notice;
 
-    private boolean isDeleted;
-
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true) // 부모 삭제시 자동 삭제 + 관계 끊김
     private List<ProductDetail> productDetails = new ArrayList<>();
 
-    @OneToOne(mappedBy = "product")
+    @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProductImage productImage;
 
-    // == 생성 메서드
-    public static Product createProduct(ProductAddReq addRequest) {
-        Product product = new Product();
 
-        product.name = addRequest.getProductName();
-
-        return product;
-    }
 }

@@ -4,9 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.io.InputStream;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -16,7 +18,11 @@ public class S3Service {
 
     private static final String BUCKET_NAME = "curtaincall-images";
 
-    public String uploadFile(String fileName, InputStream inputStream, long fileSize) {
+    // 이미지 등록
+    public String uploadFile(String OriginalfileName, InputStream inputStream, long fileSize) {
+        // 중복 방지
+        String fileName = UUID.randomUUID() + "_" + OriginalfileName;
+
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(BUCKET_NAME)
                 .key(fileName)
@@ -27,4 +33,13 @@ public class S3Service {
         return String.format("https://%s.s3.amazonaws.com/%s", BUCKET_NAME, fileName);
     }
 
+    // 이미지 삭제
+    public void deleteFile(String fileUrl) {
+        String fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
+        DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                .bucket(BUCKET_NAME)
+                .key(fileName)
+                .build();
+        s3Client.deleteObject(deleteObjectRequest);
+    }
 }
