@@ -23,7 +23,9 @@ public class UserResponse {
 
     private final boolean isActive;
 
-    public UserResponse(User user) {
+    private final String token;
+
+    public UserResponse(User user, String token) {
         this.id = user.getId();
         this.email = user.getEmail();
         this.password = user.getPassword();
@@ -31,5 +33,6 @@ public class UserResponse {
         this.phone = user.getPhone();
         this.role = user.getRole();
         this.isActive = user.isActive();
+        this.token = token;
     }
 }

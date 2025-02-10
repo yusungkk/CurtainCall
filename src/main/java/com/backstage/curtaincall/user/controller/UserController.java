@@ -1,7 +1,9 @@
 package com.backstage.curtaincall.user.controller;
 
 import com.backstage.curtaincall.user.dto.request.UserJoinRequest;
+import com.backstage.curtaincall.user.dto.request.UserLoginRequest;
 import com.backstage.curtaincall.user.dto.request.UserUpdateRequest;
+import com.backstage.curtaincall.user.dto.response.UserResponse;
 import com.backstage.curtaincall.user.entity.User;
 import com.backstage.curtaincall.user.service.UserService;
 import jakarta.validation.Valid;
@@ -18,8 +20,9 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody @Valid UserJoinRequest joinRequest) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(userService.addUser(joinRequest));
+    public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserJoinRequest joinRequest) {
+        UserResponse response = userService.addUser(joinRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PutMapping("/update/{id}")
@@ -38,5 +41,10 @@ public class UserController {
     public ResponseEntity<User> getUser(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return ResponseEntity.ok(user);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody @Valid UserLoginRequest loginRequest) {
+        return ResponseEntity.ok(userService.login(loginRequest));
     }
 }
