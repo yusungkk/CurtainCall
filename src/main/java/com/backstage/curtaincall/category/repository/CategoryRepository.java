@@ -32,11 +32,11 @@ public interface CategoryRepository extends JpaRepository<Category,Long> {
     boolean existsByName(@Param("name") String name);
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Category c SET c.deleted = true WHERE c.parent.id = :parentId")
     void softDeleteChildren(@Param("parentId") Long parentId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("UPDATE Category c SET c.deleted = false WHERE c.parent.id = :parentId")
     void restoreChildren(@Param("parentId") Long parentId);
 
