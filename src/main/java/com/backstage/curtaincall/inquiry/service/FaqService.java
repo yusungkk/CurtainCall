@@ -29,22 +29,33 @@ public class FaqService {
     }
 
     @Transactional(readOnly = true)
+    public Page<FaqResponse> findAll(int offset, int limit) {
+        return faqRepository.findAll(PageRequest.of(offset, limit))
+                .map(faq -> new FaqResponse(faq.getType(), faq.getAnswer(), faq.getQuestion()));
+    }
+
+    @Transactional(readOnly = true)
     public Page<FaqResponse> findAllByType(String type, int offset, int limit) {
 
         FaqType faqType = getFaqType(type);
         PageRequest pageRequest = PageRequest.of(offset, limit);
 
         return faqRepository.findAllByFaqType(faqType, pageRequest)
-                .map(faq -> new FaqResponse(faq.getAnswer(), faq.getQuestion()));
+                .map(faq -> new FaqResponse(faq.getType(), faq.getAnswer(), faq.getQuestion()));
     }
 
     @Transactional
-    public void updateAnswer(UpdateFaqRequest request) {
+    public void updateFaq(UpdateFaqRequest request) {
 
         Faq faq = faqRepository.findById(request.getId())
                 .orElseThrow(() -> new CustomException(FAQ_NOT_FOUND));
 
-        faq.updateAnswer(request.getAnswer());
+        faq.updateFaq(request.getAnswer(), request.getQuestion(), request.getType());
+    }
+
+    @Transactional
+    public void deleteFaq(Long id) {
+        faqRepository.deleteById(id);
     }
 
     private FaqType getFaqType(String type) {

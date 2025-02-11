@@ -33,7 +33,9 @@ public class Faq extends BaseEntity {
         return new Faq(answer, question, type);
     }
 
-    public void updateAnswer(String answer) {
+    public void updateFaq(String answer, String question, FaqType faqType) {
         this.answer = answer;
+        this.question = question;
+        this.type = faqType;
     }
 }
