@@ -65,13 +65,14 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
     }
 
-    public String login(UserLoginRequest loginRequest) {
+    public UserResponse login(UserLoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new CustomException(CustomErrorCode.INVALID_PASSWORD);
         }
 
-        return jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail());
+        return new UserResponse(user, token);
     }
 }
