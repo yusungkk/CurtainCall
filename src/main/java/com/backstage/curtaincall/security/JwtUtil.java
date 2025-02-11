@@ -15,7 +15,7 @@ import java.util.Date;
 @Slf4j
 public class JwtUtil {
 
-    @Value("123")
+    @Value("${spring.jwt.secret-key}")
     private String secretKey;
 
     private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1시간
