@@ -93,16 +93,19 @@ public class ProductService {
 
         // 전달된 내용 업데이트
         // 유효성 검사는 컨트롤러에서
-        // 상품 관련 메서드 상품 클래스 안에
         product.update(requestDto);
 
         // 이미지 업데이트
         if(file != null && !file.isEmpty()) {
             // 기존 이미지 삭제
-            ProductImage productImage = productImageRepository.findByProduct(product);
+            ProductImage productImage = product.getProductImage();
             if(productImage != null) {
                 s3Service.deleteFile(productImage.getImageUrl());
+                // 양방향 참조 제거
+                product.updateImage(null);
                 productImageRepository.delete(productImage);
+                // Unique 제약 조건을 만족하기 위해 새로운 이미지 값을 저장하기 전에 미리 지워줘야 함
+                productImageRepository.flush();
             }
 
             // 새로운 이미지 업로드
@@ -114,8 +117,6 @@ public class ProductService {
             productImageRepository.save(newProductImage);
         }
 
-        // 더티 체킹으로 바뀐 부분이 있다면 update 쿼리 실행
-        productRepository.save(product);
         return ProductResponseDto.fromEntity(product);
     }
 

@@ -9,7 +9,6 @@ import static jakarta.persistence.FetchType.LAZY;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @Entity
 public class ProductDetail extends BaseEntity {

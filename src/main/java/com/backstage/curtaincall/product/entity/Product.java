@@ -65,4 +65,8 @@ public class Product extends BaseEntity {
         this.casting = request.getCasting();
         this.notice = request.getNotice();
     }
+
+    public void updateImage(ProductImage image) {
+        this.productImage = image;
+    }
 }
