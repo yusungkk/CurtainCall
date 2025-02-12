@@ -89,35 +89,12 @@ public class ProductService {
     public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto, MultipartFile file) throws IOException {
         // Product 조회
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         // 전달된 내용 업데이트
-        if(requestDto != null) {
-            if (requestDto.getProductName() != null && !requestDto.getProductName().isEmpty()) {
-                product.setProductName(requestDto.getProductName());
-            }
-            if (requestDto.getPlace() != null && !requestDto.getPlace().isEmpty()) {
-                product.setPlace(requestDto.getPlace());
-            }
-            if (requestDto.getStartDate() != null) {
-                product.setStartDate(requestDto.getStartDate());
-            }
-            if (requestDto.getEndDate() != null) {
-                product.setEndDate(requestDto.getEndDate());
-            }
-            if (requestDto.getRunningTime() > 0) {
-                product.setRunningTime(requestDto.getRunningTime());
-            }
-            if (requestDto.getPrice() >= 0) {
-                product.setPrice(requestDto.getPrice());
-            }
-            if (requestDto.getCasting() != null && !requestDto.getCasting().isEmpty()) {
-                product.setCasting(requestDto.getCasting());
-            }
-            if (requestDto.getNotice() != null && !requestDto.getNotice().isEmpty()) {
-                product.setNotice(requestDto.getNotice());
-            }
-        }
+        // 유효성 검사는 컨트롤러에서
+        // 상품 관련 메서드 상품 클래스 안에
+        product.update(requestDto);
 
         // 이미지 업데이트
         if(file != null && !file.isEmpty()) {
@@ -137,6 +114,7 @@ public class ProductService {
             productImageRepository.save(newProductImage);
         }
 
+        // 더티 체킹으로 바뀐 부분이 있다면 update 쿼리 실행
         productRepository.save(product);
         return ProductResponseDto.fromEntity(product);
     }

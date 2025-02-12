@@ -1,6 +1,7 @@
 package com.backstage.curtaincall.image;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
@@ -16,7 +17,8 @@ public class S3Service {
 
     private final S3Client s3Client;
 
-    private static final String BUCKET_NAME = "curtaincall-images";
+    @Value("${cloud.aws.s3.bucket}")
+    private String BUCKET_NAME;
 
     // 이미지 등록
     public String uploadFile(String OriginalfileName, InputStream inputStream, long fileSize) {
