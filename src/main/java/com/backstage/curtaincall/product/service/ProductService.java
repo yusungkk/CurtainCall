@@ -1,5 +1,7 @@
 package com.backstage.curtaincall.product.service;
 
+import com.backstage.curtaincall.global.exception.CustomErrorCode;
+import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.image.S3Service;
 import com.backstage.curtaincall.product.dto.ProductAddReq;
 import com.backstage.curtaincall.product.dto.ProductDetailRequestDto;
@@ -17,7 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +32,28 @@ public class ProductService {
     private final ProductDetailRepository productDetailRepository;
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
+
+    @Transactional(readOnly = true)
+    public List<ProductResponseDto> getAllProducts() {
+        List<Product> findProducts = productRepository.findAll();
+
+        List<ProductResponseDto> products = new ArrayList<>();
+        for (Product findProduct : findProducts) {
+            ProductResponseDto productResponseDto = ProductResponseDto.fromEntity(findProduct);
+            products.add(productResponseDto);
+        }
+
+        return products;
+    }
+
+    @Transactional(readOnly = true)
+    public ProductResponseDto getProduct(Long id) {
+        Optional<Product> optionalProduct = productRepository.findById(id);
+        Product findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+
+        return ProductResponseDto.fromEntity(findProduct);
+    }
+
 
     @Transactional
     public ProductResponseDto createProduct(ProductRequestDto requestDto, MultipartFile file) throws IOException {

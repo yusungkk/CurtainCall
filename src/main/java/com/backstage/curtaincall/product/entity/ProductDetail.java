@@ -15,7 +15,7 @@ import static jakarta.persistence.FetchType.LAZY;
 public class ProductDetail extends BaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "product_detail_id")
     private Long productDetailId;
 
