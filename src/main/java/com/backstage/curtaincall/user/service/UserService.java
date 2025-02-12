@@ -41,10 +41,7 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
-
-        String token = jwtUtil.generateToken(user.getEmail());
-
-        return new UserResponse(user, token);
+        return new UserResponse(user, null);
     }
 
     @Transactional
@@ -57,6 +54,10 @@ public class UserService {
 
     @Transactional
     public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new CustomException(CustomErrorCode.USER_NOT_FOUND);
+        }
+
         userRepository.deleteById(id);
     }
 
@@ -65,14 +66,20 @@ public class UserService {
         return userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
     }
 
-    public UserResponse login(UserLoginRequest loginRequest) {
+    @Transactional
+    public String login(UserLoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new CustomException(CustomErrorCode.INVALID_PASSWORD);
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
-        return new UserResponse(user, token);
+        return jwtUtil.generateToken(user.getEmail());
+    }
+
+    @Transactional
+    public UserResponse getUserByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        return new UserResponse(user, null);
     }
 }

@@ -8,8 +8,6 @@ import lombok.Getter;
 
 @Getter
 public class UserResponse {
-    private final Long id;
-
     private final String email;
 
     private final String password;
@@ -18,21 +16,10 @@ public class UserResponse {
 
     private final String phone;
 
-    @Enumerated(EnumType.STRING)
-    private final RoleType role;
-
-    private final boolean isActive;
-
-    private final String token;
-
     public UserResponse(User user, String token) {
-        this.id = user.getId();
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.name = user.getName();
         this.phone = user.getPhone();
-        this.role = user.getRole();
-        this.isActive = user.isActive();
-        this.token = token;
     }
 }

@@ -1,5 +1,6 @@
 package com.backstage.curtaincall.user.controller;
 
+import com.backstage.curtaincall.security.JwtUtil;
 import com.backstage.curtaincall.user.dto.request.UserJoinRequest;
 import com.backstage.curtaincall.user.dto.request.UserLoginRequest;
 import com.backstage.curtaincall.user.dto.request.UserUpdateRequest;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@RequestBody @Valid UserJoinRequest joinRequest) {
@@ -26,9 +28,9 @@ public class UserController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest updateRequest) {
+    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest updateRequest) {
         User updatedUser = userService.updateUser(id, updateRequest);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.ok(new UserResponse(updatedUser, null));
     }
 
     @DeleteMapping("/{id}")
@@ -44,7 +46,14 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UserResponse> login(@RequestBody @Valid UserLoginRequest loginRequest) {
+    public ResponseEntity<String> login(@RequestBody @Valid UserLoginRequest loginRequest) {
         return ResponseEntity.ok(userService.login(loginRequest));
+    }
+
+    @GetMapping("/myPage")
+    public ResponseEntity<UserResponse> getMyPage(@RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractEmail(token);
+        UserResponse userResponse = userService.getUserByEmail(email);
+        return ResponseEntity.ok(userResponse);
     }
 }

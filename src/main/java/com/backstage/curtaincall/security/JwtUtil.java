@@ -1,5 +1,7 @@
 package com.backstage.curtaincall.security;
 
+import com.backstage.curtaincall.global.exception.CustomErrorCode;
+import com.backstage.curtaincall.global.exception.CustomException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -34,26 +36,25 @@ public class JwtUtil {
     }
 
     public String getUserEmail(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(getSigningKey())
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-    }
-
-    public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder().setSigningKey(getSigningKey()).build().parseClaimsJws(token);
-            return true;
+            return Jwts.parserBuilder()
+                    .setSigningKey(getSigningKey())
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
         } catch (Exception e) {
-            log.error("Invalid JWT Token", e);
-            return false;
+            log.error("Error extracting email from token", e);
+            throw new CustomException(CustomErrorCode.INVALID_TOKEN);
         }
     }
 
-    public String resolveToken(HttpServletRequest request) {
-        String bearerToken = request.getHeader("Authorization");
+    public String extractEmail(String bearerToken) {
+        String token = resolveBearerToken(bearerToken);
+        return (token != null) ? getUserEmail(token) : null;
+    }
+
+    private String resolveBearerToken(String bearerToken) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
         }
