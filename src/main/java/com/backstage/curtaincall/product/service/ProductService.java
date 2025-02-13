@@ -128,43 +128,23 @@ public class ProductService {
     public ProductResponseDto updateProduct(Long productId, ProductRequestDto requestDto, MultipartFile file) throws IOException {
         // Product 조회
         Product product = productRepository.findById(productId)
-                .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         // 전달된 내용 업데이트
-        if(requestDto != null) {
-            if (requestDto.getProductName() != null && !requestDto.getProductName().isEmpty()) {
-                product.setProductName(requestDto.getProductName());
-            }
-            if (requestDto.getPlace() != null && !requestDto.getPlace().isEmpty()) {
-                product.setPlace(requestDto.getPlace());
-            }
-            if (requestDto.getStartDate() != null) {
-                product.setStartDate(requestDto.getStartDate());
-            }
-            if (requestDto.getEndDate() != null) {
-                product.setEndDate(requestDto.getEndDate());
-            }
-            if (requestDto.getRunningTime() > 0) {
-                product.setRunningTime(requestDto.getRunningTime());
-            }
-            if (requestDto.getPrice() >= 0) {
-                product.setPrice(requestDto.getPrice());
-            }
-            if (requestDto.getCasting() != null && !requestDto.getCasting().isEmpty()) {
-                product.setCasting(requestDto.getCasting());
-            }
-            if (requestDto.getNotice() != null && !requestDto.getNotice().isEmpty()) {
-                product.setNotice(requestDto.getNotice());
-            }
-        }
+        // 유효성 검사는 컨트롤러에서
+        product.update(requestDto);
 
         // 이미지 업데이트
         if(file != null && !file.isEmpty()) {
             // 기존 이미지 삭제
-            ProductImage productImage = productImageRepository.findByProduct(product);
+            ProductImage productImage = product.getProductImage();
             if(productImage != null) {
                 s3Service.deleteFile(productImage.getImageUrl());
+                // 양방향 참조 제거
+                product.updateImage(null);
                 productImageRepository.delete(productImage);
+                // Unique 제약 조건을 만족하기 위해 새로운 이미지 값을 저장하기 전에 미리 지워줘야 함
+                productImageRepository.flush();
             }
 
             // 새로운 이미지 업로드
@@ -176,19 +156,17 @@ public class ProductService {
             productImageRepository.save(newProductImage);
         }
 
-        productRepository.save(product);
         return ProductResponseDto.fromEntity(product);
     }
 
-
-    // 상품 삭제
+    @Transactional
     public void deleteProduct(Long productId) {
         // Product 조회
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
 
         // S3 및 DB에서 이미지 삭제
-        ProductImage productImage = productImageRepository.findByProduct(product);
+        ProductImage productImage = product.getProductImage();
         if(productImage != null) {
             s3Service.deleteFile(productImage.getImageUrl());
             productImageRepository.delete(productImage);

@@ -7,7 +7,6 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @Entity
 public class ProductImage extends BaseEntity {
@@ -18,7 +17,7 @@ public class ProductImage extends BaseEntity {
     @Column(nullable = false)
     private String imageUrl;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 }

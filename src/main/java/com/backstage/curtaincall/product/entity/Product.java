@@ -1,6 +1,7 @@
 package com.backstage.curtaincall.product.entity;
 
 import com.backstage.curtaincall.global.entity.BaseEntity;
+import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -13,7 +14,6 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Getter
-@Setter
 @Builder
 @Entity
 public class Product extends BaseEntity {
@@ -56,5 +56,18 @@ public class Product extends BaseEntity {
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProductImage productImage;
 
+    public void update(ProductRequestDto request) {
+        this.productName = request.getProductName();
+        this.place = request.getPlace();
+        this.startDate = request.getStartDate();
+        this.endDate = request.getEndDate();
+        this.runningTime = request.getRunningTime();
+        this.price = request.getPrice();
+        this.casting = request.getCasting();
+        this.notice = request.getNotice();
+    }
 
+    public void updateImage(ProductImage image) {
+        this.productImage = image;
+    }
 }

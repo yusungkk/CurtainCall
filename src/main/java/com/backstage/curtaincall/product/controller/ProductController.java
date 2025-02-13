@@ -26,6 +26,20 @@ public class ProductController {
 
     private final ProductService productService;
 
+    @GetMapping
+    public ResponseEntity<List<ProductResponseDto>> getProducts() {
+        List<ProductResponseDto> products = productService.getAllProducts();
+
+        return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
+        ProductResponseDto response = productService.getProduct(productId);
+
+        return ResponseEntity.ok(response);
+    }
+
     // 상품 등록 API
     @PostMapping("/create")
     public ResponseEntity<?> createProduct(
