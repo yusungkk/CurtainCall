@@ -8,7 +8,9 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class FaqResponse {
+
+    private Long id;
     private FaqType type;
     private String answer;
-    private String quastion;
+    private String question;
 }

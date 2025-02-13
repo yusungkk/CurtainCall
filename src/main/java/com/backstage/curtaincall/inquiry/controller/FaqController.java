@@ -7,6 +7,7 @@ import com.backstage.curtaincall.inquiry.service.FaqService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.HttpStatus.*;
@@ -20,24 +21,27 @@ public class FaqController {
 
     @GetMapping("/faqs")
     public ResponseEntity<Page<FaqResponse>> getFaqs(
+            @RequestParam(required = false, name = "faq-type") String faqType,
             @RequestParam(defaultValue = "0") int offset,
             @RequestParam(defaultValue = "10") int limit) {
 
+        Page<FaqResponse> findFaqs = null;
+        if (StringUtils.hasText(faqType)) {
+            findFaqs = faqService.findAllByType(faqType, offset, limit);
+        } else {
+            findFaqs = faqService.findAll(offset, limit);
+        }
+
         return ResponseEntity
                 .status(OK)
-                .body(faqService.findAll(offset, limit));
+                .body(findFaqs);
     }
 
-    @GetMapping("/faqs/faq-type")
-    public ResponseEntity<Page<FaqResponse>> getFaqsByType(
-            String faqType,
-            @RequestParam(defaultValue = "0") int offset,
-            @RequestParam(defaultValue = "10") int limit
-    ) {
-        return ResponseEntity
-                .status(OK)
-                .body(faqService.findAllByType(faqType, offset, limit));
+    @GetMapping("/faqs/{id}")
+    public ResponseEntity<FaqResponse> getFaq(@PathVariable Long id) {
+        return ResponseEntity.ok(faqService.findFaq(id));
     }
+
 
     @ResponseStatus(CREATED)
     @PostMapping("/admin/faqs/new")
