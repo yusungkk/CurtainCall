@@ -4,6 +4,8 @@ import com.backstage.curtaincall.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 import static jakarta.persistence.FetchType.LAZY;
 
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -29,6 +31,8 @@ public class ProductDetail extends BaseEntity {
 
     @Column(name = "remain")
     private int remain;
+
+    private LocalDate performanceDate;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "product_id", nullable = false)
