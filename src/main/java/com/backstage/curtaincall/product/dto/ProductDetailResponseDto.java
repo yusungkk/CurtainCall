@@ -6,6 +6,8 @@ import com.backstage.curtaincall.product.entity.Time;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDate;
+
 @Getter
 @Builder
 public class ProductDetailResponseDto {
@@ -14,6 +16,7 @@ public class ProductDetailResponseDto {
     private Time time;
     private int remain;
     private Long productId;
+    private LocalDate performanceDate;
 
     public static ProductDetailResponseDto fromEntity(ProductDetail productDetail) {
         return ProductDetailResponseDto.builder()
@@ -22,6 +25,7 @@ public class ProductDetailResponseDto {
                 .time(productDetail.getTime())
                 .remain(productDetail.getRemain())
                 .productId(productDetail.getProduct().getProductId())
+                .performanceDate(productDetail.getPerformanceDate())
                 .build();
     }
 }

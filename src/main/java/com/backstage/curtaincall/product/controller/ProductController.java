@@ -50,11 +50,26 @@ public class ProductController {
             throw new IllegalArgumentException("이미지는 필수입니다.");
         }
 
-        log.debug("📌 받은 ProductDetails 데이터: " + requestDto.getProductDetails());
-
         ProductResponseDto response = productService.createProduct(requestDto, image);
         return ResponseEntity.ok(response);
     }
+
+    // 상품 목록 조회 API (전체 조회)
+    @GetMapping
+    public ResponseEntity<List<ProductResponseDto>> getProducts() {
+        List<ProductResponseDto> products = productService.getAllProducts();
+
+        return ResponseEntity.ok(products);
+    }
+
+    // 상품 목록 조회 API (단일 조회)
+    @GetMapping("/{productId}")
+    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
+        ProductResponseDto response = productService.getProduct(productId);
+
+        return ResponseEntity.ok(response);
+    }
+
 
     // 상품 수정 API
     @PatchMapping("/{productId}")

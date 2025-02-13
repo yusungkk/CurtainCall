@@ -47,6 +47,7 @@ public class Product extends BaseEntity {
 
     private String casting;
 
+    @Column(nullable = false, length = 500)
     private String notice;
 
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true) // 부모 삭제시 자동 삭제 + 관계 끊김
