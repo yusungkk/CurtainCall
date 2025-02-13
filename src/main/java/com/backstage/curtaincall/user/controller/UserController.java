@@ -56,4 +56,13 @@ public class UserController {
         UserResponse userResponse = userService.getUserByEmail(email);
         return ResponseEntity.ok(userResponse);
     }
+
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(@RequestHeader("Authorization") String token) {
+        String jwt = jwtUtil.extractEmail(token);
+        if (jwt != null) {
+            return ResponseEntity.ok("로그아웃 성공");
+        }
+        return ResponseEntity.badRequest().body("유효하지 않은 토큰");
+    }
 }

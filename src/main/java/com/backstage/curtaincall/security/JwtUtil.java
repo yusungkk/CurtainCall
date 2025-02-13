@@ -20,7 +20,7 @@ public class JwtUtil {
     @Value("${spring.jwt.secret-key}")
     private String secretKey;
 
-    private final long EXPIRATION_TIME = 1000 * 60 * 60; // 1시간
+    private final long EXPIRATION_TIME = 1000 * 60 * 30; // 30분
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
