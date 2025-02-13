@@ -120,14 +120,14 @@ public class ProductService {
         return ProductResponseDto.fromEntity(product);
     }
 
-
+    @Transactional
     public void deleteProduct(Long productId) {
         // Product 조회
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("해당 상품이 존재하지 않습니다."));
 
         // S3 및 DB에서 이미지 삭제
-        ProductImage productImage = productImageRepository.findByProduct(product);
+        ProductImage productImage = product.getProductImage();
         if(productImage != null) {
             s3Service.deleteFile(productImage.getImageUrl());
             productImageRepository.delete(productImage);
