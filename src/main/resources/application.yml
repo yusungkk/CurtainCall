@@ -1,0 +1,36 @@
+spring:
+  application.name: curtaincall
+
+  datasource:
+    url: jdbc:mariadb://localhost:3306/curtaincall
+    username: root
+    password: passw0rd
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+        format_sql: true
+
+  cloud:
+    aws:
+      credentials:
+        accessKey:
+        secretKey:
+      s3:
+        bucket: curtaincall-image
+      region:
+        static: ap-northeast-2
+      stack:
+        auto: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+
+logging:
+  level:
+    org.hibernate.SQL: debug
+    org.hibernate.orm.jdbc.bind: trace
