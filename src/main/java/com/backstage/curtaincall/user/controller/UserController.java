@@ -27,9 +27,10 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest updateRequest) {
-        User updatedUser = userService.updateUser(id, updateRequest);
+    @PutMapping("/update")
+    public ResponseEntity<UserResponse> updateUser(@RequestHeader("Authorization") String token, @RequestBody @Valid UserUpdateRequest updateRequest) {
+        String email = jwtUtil.extractEmail(token);
+        User updatedUser = userService.updateUser(email, updateRequest);
         return ResponseEntity.ok(new UserResponse(updatedUser, null));
     }
 

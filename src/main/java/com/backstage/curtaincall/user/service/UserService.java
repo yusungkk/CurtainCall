@@ -45,9 +45,15 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(Long id, UserUpdateRequest updateRequest) {
-        User user = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        user.update(updateRequest.getPassword(), updateRequest.getName(), updateRequest.getPhone());
+    public User updateUser(String email, UserUpdateRequest updateRequest) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+        if (updateRequest.getPassword() != null && !updateRequest.getPassword().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(updateRequest.getPassword());
+            user.update(encodedPassword, updateRequest.getName(), updateRequest.getPhone());
+        } else {
+            user.update(user.getPassword(), updateRequest.getName(), updateRequest.getPhone());
+        }
 
         return user;
     }
