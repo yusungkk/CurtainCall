@@ -40,7 +40,7 @@ public class FaqService {
     @Transactional(readOnly = true)
     public Page<FaqResponse> findAllByType(String type, int offset, int limit) {
 
-        QuestionType questionType = getFaqType(type);
+        QuestionType questionType = getQuestionType(type);
         PageRequest pageRequest = PageRequest.of(offset, limit);
 
         return faqRepository.findAllByFaqType(questionType, pageRequest)
@@ -67,7 +67,7 @@ public class FaqService {
         faqRepository.deleteById(id);
     }
 
-    private QuestionType getFaqType(String type) {
+    private QuestionType getQuestionType(String type) {
 
         QuestionType questionType;
 
