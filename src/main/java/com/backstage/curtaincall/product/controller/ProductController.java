@@ -26,6 +26,7 @@ public class ProductController {
 
     private final ProductService productService;
 
+    // 상품 목록 조회 API (전체 조회)
     @GetMapping
     public ResponseEntity<List<ProductResponseDto>> getProducts() {
         List<ProductResponseDto> products = productService.getAllProducts();
@@ -33,9 +34,18 @@ public class ProductController {
         return ResponseEntity.ok(products);
     }
 
+    // 상품 목록 조회 API (단일 조회)
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
         ProductResponseDto response = productService.getProduct(productId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 상품 detailId로 상품 조회
+    @GetMapping("/detail/{productDetailId}")
+    public ResponseEntity<ProductResponseDto> getProductByDetailId(@PathVariable Long productDetailId) {
+        ProductResponseDto response = productService.getProductByDetailId(productDetailId);
 
         return ResponseEntity.ok(response);
     }

@@ -57,6 +57,14 @@ public class ProductService {
         return ProductResponseDto.fromEntity(findProduct);
     }
 
+    @Transactional(readOnly = true)
+    public ProductResponseDto getProductByDetailId(Long id) {
+        Optional<ProductDetail> optionalProduct = productDetailRepository.findById(id);
+        ProductDetail findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+
+        return ProductResponseDto.fromEntity(findProduct.getProduct());
+    }
+
 
     // 상품 등록
     @Transactional
