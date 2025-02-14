@@ -30,16 +30,13 @@ public class SpecialProduct extends BaseEntity {
     @JoinColumn(name = "procuct_id", nullable = false)
     TemporaryProduct product;
 
-    @Column(nullable = false)
-    private Integer discountRate; // 할인율 (0~100, 정수만 허용)
+    private int discountRate; // 할인율 (0~100, 정수만 허용)
 
-    @Column(nullable = false)
     private LocalDateTime startDate; // 할인 시작 날짜
 
-    @Column(nullable = false)
     private LocalDateTime endDate; // 할인 종료 날짜
 
-    @Column
-    private Boolean deleted = false; // 삭제 여부 (기본값 FALSE)
+    @Column(name = "is_deleted")
+    private boolean deleted = false; // 삭제 여부 (기본값 FALSE)
 
 }

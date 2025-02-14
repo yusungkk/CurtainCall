@@ -48,7 +48,7 @@ public class Category extends BaseEntity {
     @Builder.Default
     private List<Category> children = new ArrayList<>();
 
-    @Column(name = "is_deleted", nullable = false)
+    @Column(name = "is_deleted")
     private boolean deleted = false;
 
 // 양방향 참조 필요할 때 주석 풀기

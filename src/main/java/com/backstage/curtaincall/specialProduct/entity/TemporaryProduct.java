@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "products")
+@Table(name = "temporary_products")
 @Getter
 @Setter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -40,7 +40,7 @@ public class TemporaryProduct extends BaseEntity {
     private Integer runningTime; // 상영/운영 시간
 
     @Column(nullable = false, precision = 10, scale = 2)
-    private BigDecimal price; // 가격
+    private int price; // 가격
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String casting; // 출연진
@@ -48,11 +48,11 @@ public class TemporaryProduct extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     private String notice; // 공지사항 (NULL 허용)
 
-    @Column(nullable = false)
+    @Column
     private Boolean isDeleted = false; // 삭제 여부 (기본값 FALSE)
 
-    @Column(nullable = false)
-    private Boolean isSpecial = false; // 특가 여부 (기본값 FALSE)
+    @Column
+    private int finalPrice;
 
 
 }
