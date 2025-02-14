@@ -5,7 +5,7 @@ import com.backstage.curtaincall.inquiry.dto.request.CreateFaqRequest;
 import com.backstage.curtaincall.inquiry.dto.request.UpdateFaqRequest;
 import com.backstage.curtaincall.inquiry.dto.response.FaqResponse;
 import com.backstage.curtaincall.inquiry.entity.Faq;
-import com.backstage.curtaincall.inquiry.entity.FaqType;
+import com.backstage.curtaincall.inquiry.entity.QuestionType;
 import com.backstage.curtaincall.inquiry.repository.FaqRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,10 +40,10 @@ public class FaqService {
     @Transactional(readOnly = true)
     public Page<FaqResponse> findAllByType(String type, int offset, int limit) {
 
-        FaqType faqType = getFaqType(type);
+        QuestionType questionType = getQuestionType(type);
         PageRequest pageRequest = PageRequest.of(offset, limit);
 
-        return faqRepository.findAllByFaqType(faqType, pageRequest)
+        return faqRepository.findAllByFaqType(questionType, pageRequest)
                 .map(faq -> new FaqResponse(faq.getId(), faq.getType(), faq.getAnswer(), faq.getQuestion()));
     }
 
@@ -67,16 +67,16 @@ public class FaqService {
         faqRepository.deleteById(id);
     }
 
-    private FaqType getFaqType(String type) {
+    private QuestionType getQuestionType(String type) {
 
-        FaqType faqType;
+        QuestionType questionType;
 
         try {
-            faqType = FaqType.valueOf(type);
+            questionType = QuestionType.valueOf(type);
         } catch (Exception e) {
             throw new CustomException(FAQ_TYPE_NOT_FOUND);
         }
 
-        return faqType;
+        return questionType;
     }
 }

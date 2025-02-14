@@ -1,6 +1,6 @@
 package com.backstage.curtaincall.inquiry.dto.request;
 
-import com.backstage.curtaincall.inquiry.entity.FaqType;
+import com.backstage.curtaincall.inquiry.entity.QuestionType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,5 +12,5 @@ public class CreateFaqRequest {
 
     private String question;
     private String answer;
-    private FaqType type;
+    private QuestionType type;
 }
