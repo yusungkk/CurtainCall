@@ -1,5 +1,6 @@
 package com.backstage.curtaincall.inquiry.dto.response;
 
+import com.backstage.curtaincall.inquiry.entity.FaqType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,6 +9,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class FaqResponse {
 
+    private Long id;
+    private FaqType type;
     private String answer;
-    private String quastion;
+    private String question;
 }
