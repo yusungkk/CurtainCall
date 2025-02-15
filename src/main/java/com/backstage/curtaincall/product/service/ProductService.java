@@ -3,7 +3,6 @@ package com.backstage.curtaincall.product.service;
 import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.image.S3Service;
-import com.backstage.curtaincall.product.dto.ProductAddReq;
 import com.backstage.curtaincall.product.dto.ProductDetailRequestDto;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import com.backstage.curtaincall.product.dto.ProductResponseDto;
@@ -15,6 +14,8 @@ import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +26,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,6 +35,7 @@ public class ProductService {
     private final ProductDetailRepository productDetailRepository;
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
+/*
 
     @Transactional(readOnly = true)
     public List<ProductResponseDto> getAllProducts() {
@@ -47,6 +48,12 @@ public class ProductService {
         }
 
         return products;
+    }
+*/
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDto> getAllProducts(int page, int size) {
+        return productRepository.findAll(PageRequest.of(page, size))
+                .map(ProductResponseDto::fromEntity);
     }
 
     @Transactional(readOnly = true)
