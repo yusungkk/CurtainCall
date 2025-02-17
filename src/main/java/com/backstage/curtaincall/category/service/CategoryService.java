@@ -6,12 +6,14 @@ import com.backstage.curtaincall.category.dto.CategoryDto;
 import com.backstage.curtaincall.category.repository.CategoryRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 @Transactional
 public class CategoryService {
 
@@ -40,7 +42,7 @@ public class CategoryService {
         // 이스케이프 처리
         String escapedName = StringEscapeUtils.escapeHtml4(name);
 
-        validate(escapedName);
+        validateCategoryName(escapedName);
 
         Category category = Category.from(escapedName);
 
@@ -66,7 +68,7 @@ public class CategoryService {
         // 이스케이프 처리
         String escapedName = StringEscapeUtils.escapeHtml4(name);
 
-        validate(escapedName);
+        validateCategoryName(escapedName);
 
         Category category = categoryRepository.findByIdNotDeleted(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID가 없습니다."));
@@ -75,7 +77,7 @@ public class CategoryService {
         return categoryRepository.save(category).toDto();
     }
 
-    private void validate(String escapedName) {
+    private void validateCategoryName(String escapedName) {
         if (escapedName == null || escapedName.trim().isEmpty()) {
             throw new IllegalArgumentException("카테고리 이름은 공백일 수 없습니다.");
         }
@@ -91,22 +93,23 @@ public class CategoryService {
         Category category = categoryRepository.findByIdNotDeleted(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID가 없습니다."));
 
+        //자신 삭제
+        category.delete();
+
         // 부모카테고리면 자식카테고리 삭제
         if(category.isRootCategory()){
             categoryRepository.softDeleteChildren(id);
         }
-        //자신 삭제
-        category.delete();
     }
 
 
     public void restore(Long id) {
         Category category = categoryRepository.findByIdDeleted(id)
                 .orElseThrow(() -> new IllegalArgumentException("해당 ID가 없습니다."));
+
+        category.restore();
         if(category.isRootCategory()){
             categoryRepository.restoreChildren(id);
         }
-
-        category.restore();
     }
 }
