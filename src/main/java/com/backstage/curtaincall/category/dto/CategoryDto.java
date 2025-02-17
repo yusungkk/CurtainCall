@@ -21,7 +21,7 @@ public class CategoryDto {
     private Long parentId;
 
     @NotBlank
-    @Size(max = 50, message = "이름은 1자 이상 20자 이하로 입력해주세요.")
+    @Size(max = 50, message = "이름은 1자 이상 50자 이하로 입력해주세요.")
     private String name;
 
     private boolean deleted;
