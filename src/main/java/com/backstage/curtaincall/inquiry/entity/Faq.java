@@ -20,20 +20,22 @@ public class Faq extends BaseEntity {
     private String question;
 
     @Enumerated(EnumType.STRING)
-    private FaqType type;
+    private QuestionType type;
 
 
-    public Faq(String answer, String question, FaqType type) {
+    public Faq(String answer, String question, QuestionType type) {
         this.answer = answer;
         this.question = question;
         this.type = type;
     }
 
-    public static Faq create(String answer, String question, FaqType type) {
+    public static Faq create(String answer, String question, QuestionType type) {
         return new Faq(answer, question, type);
     }
 
-    public void updateAnswer(String answer) {
+    public void updateFaq(String answer, String question, QuestionType questionType) {
         this.answer = answer;
+        this.question = question;
+        this.type = questionType;
     }
 }

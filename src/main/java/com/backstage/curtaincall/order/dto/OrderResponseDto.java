@@ -27,6 +27,7 @@ public class OrderResponseDto {
         return OrderResponseDto.builder()
                 .orderId(order.getOrderId())
                 .orderNo(order.getOrderNo())
+                .user(new UserResponse(order.getUser())) // User 데이터 포함
                 .price(order.getPrice())
                 .status(order.getStatus())
                 .selectedSeats(orderDetails.stream().map(OrderDetail::getSeat).collect(Collectors.toList()))

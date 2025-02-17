@@ -6,6 +6,7 @@ import com.backstage.curtaincall.security.JwtUtil;
 import com.backstage.curtaincall.user.dto.request.UserJoinRequest;
 import com.backstage.curtaincall.user.dto.request.UserLoginRequest;
 import com.backstage.curtaincall.user.dto.request.UserUpdateRequest;
+import com.backstage.curtaincall.user.dto.response.LoginResponse;
 import com.backstage.curtaincall.user.dto.response.UserResponse;
 import com.backstage.curtaincall.user.entity.RoleType;
 import com.backstage.curtaincall.user.entity.User;
@@ -41,13 +42,19 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
-        return new UserResponse(user, null);
+        return new UserResponse(user);
     }
 
     @Transactional
-    public User updateUser(Long id, UserUpdateRequest updateRequest) {
-        User user = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        user.update(updateRequest.getPassword(), updateRequest.getName(), updateRequest.getPhone());
+    public User updateUser(String email, UserUpdateRequest updateRequest) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+        if (updateRequest.getPassword() != null && !updateRequest.getPassword().isEmpty()) {
+            String encodedPassword = passwordEncoder.encode(updateRequest.getPassword());
+            user.update(encodedPassword, updateRequest.getName(), updateRequest.getPhone());
+        } else {
+            user.update(user.getPassword(), updateRequest.getName(), updateRequest.getPhone());
+        }
 
         return user;
     }
@@ -67,19 +74,21 @@ public class UserService {
     }
 
     @Transactional
-    public String login(UserLoginRequest loginRequest) {
+    public LoginResponse login(UserLoginRequest loginRequest) {
         User user = userRepository.findByEmail(loginRequest.getEmail()).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
 
         if (!passwordEncoder.matches(loginRequest.getPassword(), user.getPassword())) {
             throw new CustomException(CustomErrorCode.INVALID_PASSWORD);
         }
 
-        return jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail());
+
+        return new LoginResponse(user.getRole(), token);
     }
 
     @Transactional
     public UserResponse getUserByEmail(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-        return new UserResponse(user, null);
+        return new UserResponse(user);
     }
 }

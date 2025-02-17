@@ -4,6 +4,7 @@ import com.backstage.curtaincall.security.JwtUtil;
 import com.backstage.curtaincall.user.dto.request.UserJoinRequest;
 import com.backstage.curtaincall.user.dto.request.UserLoginRequest;
 import com.backstage.curtaincall.user.dto.request.UserUpdateRequest;
+import com.backstage.curtaincall.user.dto.response.LoginResponse;
 import com.backstage.curtaincall.user.dto.response.UserResponse;
 import com.backstage.curtaincall.user.entity.User;
 import com.backstage.curtaincall.user.service.UserService;
@@ -27,10 +28,11 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @PutMapping("/update/{id}")
-    public ResponseEntity<UserResponse> updateUser(@PathVariable Long id, @RequestBody @Valid UserUpdateRequest updateRequest) {
-        User updatedUser = userService.updateUser(id, updateRequest);
-        return ResponseEntity.ok(new UserResponse(updatedUser, null));
+    @PutMapping("/update")
+    public ResponseEntity<UserResponse> updateUser(@RequestHeader("Authorization") String token, @RequestBody @Valid UserUpdateRequest updateRequest) {
+        String email = jwtUtil.extractEmail(token);
+        User updatedUser = userService.updateUser(email, updateRequest);
+        return ResponseEntity.ok(new UserResponse(updatedUser));
     }
 
     @DeleteMapping("/{id}")
@@ -46,7 +48,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody @Valid UserLoginRequest loginRequest) {
+    public ResponseEntity<LoginResponse> login(@RequestBody @Valid UserLoginRequest loginRequest) {
         return ResponseEntity.ok(userService.login(loginRequest));
     }
 
