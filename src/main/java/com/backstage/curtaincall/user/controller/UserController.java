@@ -67,4 +67,11 @@ public class UserController {
         }
         return ResponseEntity.badRequest().body("유효하지 않은 토큰");
     }
+
+    @GetMapping("/role")
+    public ResponseEntity<Boolean> checkAdminRole(@RequestHeader("Authorization") String token) {
+        String email = jwtUtil.extractEmail(token);
+        boolean isAdmin = userService.isAdmin(email);
+        return ResponseEntity.ok(isAdmin);
+    }
 }
