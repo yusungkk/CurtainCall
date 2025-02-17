@@ -68,6 +68,12 @@ public class UserController {
         return ResponseEntity.badRequest().body("유효하지 않은 토큰");
     }
 
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmailDuplicate(@RequestParam String email) {
+        boolean isDuplicate = userService.isEmailDuplicate(email);
+        return ResponseEntity.ok(isDuplicate);
+    }
+
     @GetMapping("/role")
     public ResponseEntity<Boolean> checkAdminRole(@RequestHeader("Authorization") String token) {
         String email = jwtUtil.extractEmail(token);

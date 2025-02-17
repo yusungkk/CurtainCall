@@ -92,6 +92,11 @@ public class UserService {
         return new UserResponse(user);
     }
 
+    @Transactional(readOnly = true)
+    public boolean isEmailDuplicate(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     @Transactional
     public boolean isAdmin(String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
