@@ -1,34 +1,42 @@
 spring:
-  application.name: curtaincall
+  application:
+    name: curtaincall
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/curtaincall
+    url: jdbc:mysql://127.0.0.1:3306/curtaincall
     username: root
-    password: passw0rd
+    password: gmlwogmlwo7296@
+    hikari:
+      driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
-    hibernate:
-      ddl-auto: create
     properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        ddl-auto: create-delete
         format_sql: true
 
-  cloud:
-    aws:
-      credentials:
-        accessKey:
-        secretKey:
-      s3:
-        bucket: curtaincall-image
-      region:
-        static: ap-northeast-2
-      stack:
-        auto: false
+    show-sql: true
 
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  jwt:
+    secret-key: "32fdsafsafadsfdsafsdfdasfdasfa1dsfadsafadsfdsafsadfdsafdsafdsfasdfasdfsa"
+
+cloud:
+  aws:
+    credentials:
+      accessKey: "321"
+      secretKey: "312"
+    s3:
+      bucket: curtaincall-image
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
 
 logging:
   level:
