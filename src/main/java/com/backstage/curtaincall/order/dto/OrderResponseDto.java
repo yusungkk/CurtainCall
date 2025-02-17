@@ -1,6 +1,7 @@
 package com.backstage.curtaincall.order.dto;
 
 import com.backstage.curtaincall.order.entity.Order;
+import com.backstage.curtaincall.order.entity.OrderDetail;
 import com.backstage.curtaincall.order.entity.Status;
 import com.backstage.curtaincall.product.dto.ProductDetailResponseDto;
 import com.backstage.curtaincall.user.dto.response.UserResponse;
@@ -20,18 +21,16 @@ public class OrderResponseDto {
     private int price;
     private Status status;
     private UserResponse user;
-    private List<OrderDetailResponseDto> orderDetails;
+    private List<String> selectedSeats;
 
-    public static OrderResponseDto fromEntity(Order order) {
+    public static OrderResponseDto fromEntity(Order order, List<OrderDetail> orderDetails) {
         return OrderResponseDto.builder()
                 .orderId(order.getOrderId())
                 .orderNo(order.getOrderNo())
                 .user(new UserResponse(order.getUser())) // User 데이터 포함
                 .price(order.getPrice())
                 .status(order.getStatus())
-                .orderDetails(order.getOrderDetails().stream()
-                        .map(OrderDetailResponseDto::fromEntity)
-                        .collect(Collectors.toList()))
+                .selectedSeats(orderDetails.stream().map(OrderDetail::getSeat).collect(Collectors.toList()))
                 .build();
     }
 
