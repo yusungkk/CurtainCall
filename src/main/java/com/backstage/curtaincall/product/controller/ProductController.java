@@ -41,6 +41,17 @@ public class ProductController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/products/search")
+    public ResponseEntity<Page<ProductResponseDto>> getProductsByProductName(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+
+        Page<ProductResponseDto> response = productService.searchProductsByProductName(keyword, page, size);
+
+        return ResponseEntity.ok(response);
+    }
+
     // 상품 detailId로 상품 조회
     @GetMapping("/detail/{productDetailId}")
     public ResponseEntity<ProductResponseDto> getProductByDetailId(@PathVariable Long productDetailId) {
@@ -50,7 +61,7 @@ public class ProductController {
     }
 
     // 상품 등록 API
-    @PostMapping("/create")
+    @PostMapping("/products/create")
     public ResponseEntity<?> createProduct(
             @RequestPart("product") ProductRequestDto requestDto,
             @RequestPart("image") MultipartFile image) throws IOException {

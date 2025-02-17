@@ -35,21 +35,7 @@ public class ProductService {
     private final ProductDetailRepository productDetailRepository;
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
-/*
 
-    @Transactional(readOnly = true)
-    public List<ProductResponseDto> getAllProducts() {
-        List<Product> findProducts = productRepository.findAll();
-
-        List<ProductResponseDto> products = new ArrayList<>();
-        for (Product findProduct : findProducts) {
-            ProductResponseDto productResponseDto = ProductResponseDto.fromEntity(findProduct);
-            products.add(productResponseDto);
-        }
-
-        return products;
-    }
-*/
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> getAllProducts(int page, int size) {
         return productRepository.findAll(PageRequest.of(page, size))
@@ -62,6 +48,12 @@ public class ProductService {
         Product findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         return ProductResponseDto.fromEntity(findProduct);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDto> searchProductsByProductName(String keyword, int page, int size) {
+        return productRepository.findByProductNameContaining(keyword, PageRequest.of(page, size))
+                .map(ProductResponseDto::fromEntity);
     }
 
     @Transactional(readOnly = true)
