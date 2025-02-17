@@ -4,33 +4,34 @@ import com.backstage.curtaincall.product.dto.ProductDetailResponseDto;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import com.backstage.curtaincall.product.dto.ProductResponseDto;
 import com.backstage.curtaincall.product.service.ProductService;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 
 @Slf4j
 @RestController
-@RequestMapping("/api/products")
+@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 public class ProductController {
 
     private final ProductService productService;
 
     // 상품 목록 조회 API (전체 조회)
-    @GetMapping
-    public ResponseEntity<List<ProductResponseDto>> getProducts() {
-        List<ProductResponseDto> products = productService.getAllProducts();
+    @GetMapping("/products")
+    public ResponseEntity<Page<ProductResponseDto>> getProducts(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+
+        Page<ProductResponseDto> products = productService.getAllProducts(page, size, sortBy, direction);
 
         return ResponseEntity.ok(products);
     }
@@ -39,6 +40,19 @@ public class ProductController {
     @GetMapping("/{productId}")
     public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
         ProductResponseDto response = productService.getProduct(productId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/products/search")
+    public ResponseEntity<Page<ProductResponseDto>> getProductsByProductName(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
+
+        Page<ProductResponseDto> response = productService.searchProductsByProductName(keyword, page, size, sortBy, direction);
 
         return ResponseEntity.ok(response);
     }
@@ -60,7 +74,7 @@ public class ProductController {
     }
 
     // 상품 등록 API
-    @PostMapping("/create")
+    @PostMapping("/products/create")
     public ResponseEntity<?> createProduct(
             @RequestPart("product") ProductRequestDto requestDto,
             @RequestPart("image") MultipartFile image) throws IOException {
