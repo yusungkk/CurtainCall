@@ -91,4 +91,10 @@ public class UserService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         return new UserResponse(user);
     }
+
+    @Transactional
+    public boolean isAdmin(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        return user.getRole() == RoleType.ADMIN;
+    }
 }
