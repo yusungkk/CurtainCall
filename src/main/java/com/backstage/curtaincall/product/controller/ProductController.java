@@ -26,9 +26,11 @@ public class ProductController {
     @GetMapping("/products")
     public ResponseEntity<Page<ProductResponseDto>> getProducts(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
 
-        Page<ProductResponseDto> products = productService.getAllProducts(page, size);
+        Page<ProductResponseDto> products = productService.getAllProducts(page, size, sortBy, direction);
 
         return ResponseEntity.ok(products);
     }
@@ -45,9 +47,11 @@ public class ProductController {
     public ResponseEntity<Page<ProductResponseDto>> getProductsByProductName(
             @RequestParam String keyword,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(defaultValue = "asc") String direction) {
 
-        Page<ProductResponseDto> response = productService.searchProductsByProductName(keyword, page, size);
+        Page<ProductResponseDto> response = productService.searchProductsByProductName(keyword, page, size, sortBy, direction);
 
         return ResponseEntity.ok(response);
     }

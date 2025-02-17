@@ -16,6 +16,8 @@ import com.backstage.curtaincall.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,8 +39,10 @@ public class ProductService {
     private final S3Service s3Service;
 
     @Transactional(readOnly = true)
-    public Page<ProductResponseDto> getAllProducts(int page, int size) {
-        return productRepository.findAll(PageRequest.of(page, size))
+    public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
+        Pageable pageable = sortPage(page, size, sortBy, direction);
+
+        return productRepository.findAll(pageable)
                 .map(ProductResponseDto::fromEntity);
     }
 
@@ -51,9 +55,26 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
-    public Page<ProductResponseDto> searchProductsByProductName(String keyword, int page, int size) {
-        return productRepository.findByProductNameContaining(keyword, PageRequest.of(page, size))
+    public Page<ProductResponseDto> searchProductsByProductName(String keyword, int page, int size, String sortBy, String direction) {
+        Pageable pageable = sortPage(page, size, sortBy, direction);
+
+        return productRepository.findByProductNameContaining(keyword, pageable)
                 .map(ProductResponseDto::fromEntity);
+    }
+
+    private Pageable sortPage(int page, int size, String sortBy, String direction) {
+        Pageable pageable;
+
+        if (sortBy == null) {
+            pageable = PageRequest.of(page, size);
+        } else {
+            Sort sort = direction.equalsIgnoreCase("asc")
+                    ? Sort.by(sortBy).ascending()
+                    : Sort.by(sortBy).descending();
+
+            pageable = PageRequest.of(page, size, sort);
+        }
+        return pageable;
     }
 
     @Transactional(readOnly = true)
