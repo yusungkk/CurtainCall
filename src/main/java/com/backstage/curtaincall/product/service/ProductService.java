@@ -6,6 +6,7 @@ import com.backstage.curtaincall.image.S3Service;
 import com.backstage.curtaincall.product.dto.ProductDetailRequestDto;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import com.backstage.curtaincall.product.dto.ProductResponseDto;
+import com.backstage.curtaincall.product.dto.*;
 import com.backstage.curtaincall.product.entity.Dates;
 import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.entity.ProductDetail;
@@ -83,6 +84,14 @@ public class ProductService {
         ProductDetail findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         return ProductResponseDto.fromEntity(findProduct.getProduct());
+    }
+
+    @Transactional(readOnly = true)
+    public ProductDetailResponseDto getProductDetail(Long id) {
+        Optional<ProductDetail> optionalProductDetail = productDetailRepository.findById(id);
+        ProductDetail findProduct = optionalProductDetail.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+
+        return ProductDetailResponseDto.fromEntity(findProduct);
     }
 
 

@@ -1,5 +1,6 @@
 package com.backstage.curtaincall.product.controller;
 
+import com.backstage.curtaincall.product.dto.ProductDetailResponseDto;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import com.backstage.curtaincall.product.dto.ProductResponseDto;
 import com.backstage.curtaincall.product.service.ProductService;
@@ -60,6 +61,14 @@ public class ProductController {
     @GetMapping("/detail/{productDetailId}")
     public ResponseEntity<ProductResponseDto> getProductByDetailId(@PathVariable Long productDetailId) {
         ProductResponseDto response = productService.getProductByDetailId(productDetailId);
+
+        return ResponseEntity.ok(response);
+    }
+
+    // 상품 세부 정보 조회
+    @GetMapping("/details/{productDetailId}")
+    public ResponseEntity<?> getProductDetail(@PathVariable Long productDetailId) {
+        ProductDetailResponseDto response = productService.getProductDetail(productDetailId);
 
         return ResponseEntity.ok(response);
     }
