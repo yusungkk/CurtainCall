@@ -37,7 +37,7 @@ public class ProductController {
     }
 
     // 상품 목록 조회 API (단일 조회)
-    @GetMapping("/{productId}")
+    @GetMapping("/products/{productId}")
     public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
         ProductResponseDto response = productService.getProduct(productId);
 
@@ -58,7 +58,7 @@ public class ProductController {
     }
 
     // 상품 detailId로 상품 조회
-    @GetMapping("/detail/{productDetailId}")
+    @GetMapping("/products/detail/{productDetailId}")
     public ResponseEntity<ProductResponseDto> getProductByDetailId(@PathVariable Long productDetailId) {
         ProductResponseDto response = productService.getProductByDetailId(productDetailId);
 
@@ -66,7 +66,7 @@ public class ProductController {
     }
 
     // 상품 세부 정보 조회
-    @GetMapping("/details/{productDetailId}")
+    @GetMapping("/products/details/{productDetailId}")
     public ResponseEntity<?> getProductDetail(@PathVariable Long productDetailId) {
         ProductDetailResponseDto response = productService.getProductDetail(productDetailId);
 
@@ -88,7 +88,7 @@ public class ProductController {
     }
 
     // 상품 수정 API
-    @PatchMapping("/{productId}")
+    @PatchMapping("/products/{productId}")
     public ResponseEntity<?> updateProduct(
             @PathVariable Long productId,
             @RequestPart(value = "product", required = false) ProductRequestDto requestDto,
@@ -100,7 +100,7 @@ public class ProductController {
     }
 
     // 상품 삭제 API
-    @DeleteMapping("/{productId}")
+    @DeleteMapping("/products/{productId}")
     public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
         productService.deleteProduct(productId);
         return ResponseEntity.ok("상품이 성공적으로 삭제되었습니다. ID: " + productId);
