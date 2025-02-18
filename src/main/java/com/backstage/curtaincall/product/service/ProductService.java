@@ -3,6 +3,9 @@ package com.backstage.curtaincall.product.service;
 import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.image.S3Service;
+import com.backstage.curtaincall.product.dto.ProductDetailRequestDto;
+import com.backstage.curtaincall.product.dto.ProductRequestDto;
+import com.backstage.curtaincall.product.dto.ProductResponseDto;
 import com.backstage.curtaincall.product.dto.*;
 import com.backstage.curtaincall.product.entity.Dates;
 import com.backstage.curtaincall.product.entity.Product;
@@ -12,6 +15,10 @@ import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,7 +29,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,16 +40,11 @@ public class ProductService {
     private final S3Service s3Service;
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDto> getAllProducts() {
-        List<Product> findProducts = productRepository.findAll();
+    public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
+        Pageable pageable = sortPage(page, size, sortBy, direction);
 
-        List<ProductResponseDto> products = new ArrayList<>();
-        for (Product findProduct : findProducts) {
-            ProductResponseDto productResponseDto = ProductResponseDto.fromEntity(findProduct);
-            products.add(productResponseDto);
-        }
-
-        return products;
+        return productRepository.findAll(pageable)
+                .map(ProductResponseDto::fromEntity);
     }
 
     @Transactional(readOnly = true)
@@ -52,6 +53,29 @@ public class ProductService {
         Product findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         return ProductResponseDto.fromEntity(findProduct);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ProductResponseDto> searchProductsByProductName(String keyword, int page, int size, String sortBy, String direction) {
+        Pageable pageable = sortPage(page, size, sortBy, direction);
+
+        return productRepository.findByProductNameContaining(keyword, pageable)
+                .map(ProductResponseDto::fromEntity);
+    }
+
+    private Pageable sortPage(int page, int size, String sortBy, String direction) {
+        Pageable pageable;
+
+        if (sortBy == null) {
+            pageable = PageRequest.of(page, size);
+        } else {
+            Sort sort = direction.equalsIgnoreCase("asc")
+                    ? Sort.by(sortBy).ascending()
+                    : Sort.by(sortBy).descending();
+
+            pageable = PageRequest.of(page, size, sort);
+        }
+        return pageable;
     }
 
     @Transactional(readOnly = true)
