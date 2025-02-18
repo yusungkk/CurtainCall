@@ -1,6 +1,8 @@
 package com.backstage.curtaincall.specialProduct.entity;
 
 import com.backstage.curtaincall.global.entity.BaseEntity;
+import com.backstage.curtaincall.product.entity.Product;
+import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -13,11 +15,13 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
+@Getter
 @Table(name ="special_products")
 public class SpecialProduct extends BaseEntity {
 
@@ -28,7 +32,7 @@ public class SpecialProduct extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "procuct_id", nullable = false)
-    TemporaryProduct product;
+    Product product;
 
     private int discountRate; // 할인율 (0~100, 정수만 허용)
 
@@ -37,6 +41,19 @@ public class SpecialProduct extends BaseEntity {
     private LocalDateTime endDate; // 할인 종료 날짜
 
     @Column(name = "is_deleted")
-    private boolean deleted = false; // 삭제 여부 (기본값 FALSE)
+    private boolean deleted = false;
 
+
+    public SpecialProductDto toDto(){
+        return SpecialProductDto.builder()
+                .specialProductId(this.id)
+                .productId(this.product.getProductId())
+                .productName(this.product.getProductName())
+                .productStartDate(this.product.getStartDate())
+                .productEndDate(this.product.getEndDate())
+                .discountRate(this.discountRate)
+                .discountStartDate(this.startDate)
+                .discountEndDate(this.endDate)
+                .build();
+    }
 }

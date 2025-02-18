@@ -1,0 +1,22 @@
+package com.backstage.curtaincall.specialProduct.repository;
+
+import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import java.util.List;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class SpecialProductRepository {
+
+    @PersistenceContext
+    EntityManager em;
+
+    public List<SpecialProduct> findAllWithProduct(){
+        List<SpecialProduct> specialProducts = em.createQuery(
+                "select sp from SpecialProduct sp join sp.product p where sp.deleted =false ", SpecialProduct.class)
+                                                        .getResultList();
+        return specialProducts;
+    }
+
+}
