@@ -4,9 +4,14 @@ import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/specialProduct")
@@ -15,37 +20,32 @@ public class SpecialProductController {
 
     private final SpecialProductService specialProductService;
 
-    // 전체 조회 - 관리자페이지에서 사용
+    // 전체 조회
     @GetMapping
-    public ResponseEntity<List<SpecialProductDto>> findAll(){
-        List<SpecialProductDto> dtos = specialProductService.findAllWithProduct();
-        return ResponseEntity.ok(dtos);
+    public List<SpecialProductDto> findAll() {
+        return specialProductService.findAllWithProduct();
     }
 
     // 생성
     @PostMapping
-    public ResponseEntity<SpecialProductDto> createSpecialProduct(@RequestBody SpecialProductDto dto) {
-        SpecialProductDto createdDto = specialProductService.createSpecialProduct(dto);
-        return ResponseEntity.ok(createdDto);
+    public SpecialProductDto save(@RequestBody SpecialProductDto dto) {
+        return specialProductService.save(dto);
     }
 
     // 수정
     @PutMapping
-    public ResponseEntity<SpecialProductDto> updateSpecialProduct(@RequestBody SpecialProductDto dto) {
-        SpecialProductDto updatedDto = specialProductService.update(dto);
-        return ResponseEntity.ok(updatedDto);
+    public SpecialProductDto update(@RequestBody SpecialProductDto dto) {
+        return specialProductService.update(dto);
     }
 
     // 삭제 (소프트 삭제)
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public void deleteSpecialProduct(@PathVariable Long id) {
+    public void delete(@PathVariable Long id) {
         specialProductService.delete(id);
     }
 
-    //카테고리 복구
-    @PutMapping("restore/{id}")
-    @ResponseStatus(HttpStatus.OK)
+    // 복구
+    @PutMapping("/restore/{id}")
     public void restore(@PathVariable Long id) {
         specialProductService.restore(id);
     }

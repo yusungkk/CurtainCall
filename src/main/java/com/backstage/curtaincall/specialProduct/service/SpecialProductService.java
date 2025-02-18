@@ -31,7 +31,7 @@ public class SpecialProductService {
 
     // 생성
     @Transactional
-    public SpecialProductDto createSpecialProduct(SpecialProductDto dto) {
+    public SpecialProductDto save(SpecialProductDto dto) {
         // 연관된 상품(Product) 조회
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));

@@ -62,6 +62,7 @@ public class SpecialProduct extends BaseEntity {
                 .specialProductId(this.id)
                 .productId(this.product.getProductId())
                 .productName(this.product.getProductName())
+                .price(this.product.getPrice())
                 .productStartDate(this.product.getStartDate())
                 .productEndDate(this.product.getEndDate())
                 .discountRate(this.discountRate)
