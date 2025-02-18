@@ -13,7 +13,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -63,8 +62,8 @@ public class SpecialProduct extends BaseEntity {
                 .productId(this.product.getProductId())
                 .productName(this.product.getProductName())
                 .price(this.product.getPrice())
-                .productStartDate(this.product.getStartDate())
-                .productEndDate(this.product.getEndDate())
+                .startDate(this.product.getStartDate())
+                .endDate(this.product.getEndDate())
                 .discountRate(this.discountRate)
                 .discountStartDate(this.startDate)
                 .discountEndDate(this.endDate)

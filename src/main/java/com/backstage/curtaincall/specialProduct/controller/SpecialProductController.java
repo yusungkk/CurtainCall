@@ -23,7 +23,19 @@ public class SpecialProductController {
     // 전체 조회
     @GetMapping
     public List<SpecialProductDto> findAll() {
-        return specialProductService.findAllWithProduct();
+        return specialProductService.findAll();
+    }
+
+    // 삭제 된 것만 전체 조회
+    @GetMapping("findAllDeleted")
+    public List<SpecialProductDto> findAllDeleted(){
+        return specialProductService.findAllDeleted();
+    }
+
+    // 단건 조회
+    @GetMapping("{id}")
+    public SpecialProductDto findByIdWithProduct(@PathVariable Long id){
+        return specialProductService.findByIdWithProduct(id);
     }
 
     // 생성

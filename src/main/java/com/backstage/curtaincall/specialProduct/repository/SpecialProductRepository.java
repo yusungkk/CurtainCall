@@ -13,9 +13,15 @@ public class SpecialProductRepository {
     @PersistenceContext
     EntityManager em;
 
-    public List<SpecialProduct> findAllWithProduct(){
-        return em.createQuery("select sp from SpecialProduct sp join sp.product p where sp.deleted =false ", SpecialProduct.class)
+    public List<SpecialProduct> findAll(){
+        return em.createQuery("select sp from SpecialProduct sp join FETCH sp.product p where sp.deleted =false ", SpecialProduct.class)
                  .getResultList();
+    }
+
+    //삭제된것만 전체조회
+    public List<SpecialProduct> findAllDeleted(){
+        return em.createQuery("select sp from SpecialProduct sp join FETCH sp.product p where sp.deleted =true ", SpecialProduct.class)
+                .getResultList();
     }
 
     public Optional<SpecialProduct> findById(Long id) {
@@ -23,6 +29,16 @@ public class SpecialProductRepository {
                  .setParameter("id", id)
                  .getResultStream()
                  .findFirst();
+    }
+
+    public Optional<SpecialProduct> findByIdWithProduct(Long id) {
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp " +
+                                "JOIN FETCH sp.product p " +
+                                "WHERE sp.id = :id AND sp.deleted = false", SpecialProduct.class)
+                .setParameter("id", id)
+                .getResultStream()
+                .findFirst();
     }
 
 

@@ -22,11 +22,25 @@ public class SpecialProductService {
     private final ProductRepository productRepository; // Product 조회용
 
     // 전체 조회
-    public List<SpecialProductDto> findAllWithProduct(){
-        List<SpecialProduct> specialProducts = specialProductRepository.findAllWithProduct();
+    public List<SpecialProductDto> findAll(){
+        List<SpecialProduct> specialProducts = specialProductRepository.findAll();
         return specialProducts.stream()
                 .map(SpecialProduct::toDto)
                 .toList();
+    }
+
+    // 삭제된것만 전체 조회
+    public List<SpecialProductDto> findAllDeleted() {
+        List<SpecialProduct> specialProducts = specialProductRepository.findAllDeleted();
+        return specialProducts.stream()
+                .map(SpecialProduct::toDto)
+                .toList();
+    }
+
+    public SpecialProductDto findByIdWithProduct(Long id) {
+        SpecialProduct sp = specialProductRepository.findByIdWithProduct(id)
+                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+        return sp.toDto();
     }
 
     // 생성
@@ -43,15 +57,6 @@ public class SpecialProductService {
         specialProductRepository.save(sp);
         return sp.toDto();
     }
-
-    private void validateDate(Product product, SpecialProductDto dto) {
-        if (product.getStartDate().isAfter(dto.getDiscountStartDate()) ||
-                product.getEndDate().isBefore(dto.getDiscountEndDate())) {
-
-            throw new CustomException(CustomErrorCode.INVALID_DISCOUNT_PERIOD);
-        }
-    }
-
 
     // 수정
     @Transactional
@@ -77,4 +82,14 @@ public class SpecialProductService {
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.restore();
     }
+
+    private void validateDate(Product product, SpecialProductDto dto) {
+        if (product.getStartDate().isAfter(dto.getDiscountStartDate()) ||
+                product.getEndDate().isBefore(dto.getDiscountEndDate())) {
+
+            throw new CustomException(CustomErrorCode.INVALID_DISCOUNT_PERIOD);
+        }
+    }
+
+
 }
