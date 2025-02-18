@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import com.backstage.curtaincall.category.dto.CategoryDto;
 import com.backstage.curtaincall.product.entity.Product;
-import com.backstage.curtaincall.product.entity.ProductDetail;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -16,7 +16,7 @@ import lombok.Getter;
 public class ProductResponseDto {
     private Long productId;
     private String productName;
-    // private Long categoryId;
+    private CategoryDto category;
     private String place;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -30,6 +30,7 @@ public class ProductResponseDto {
     public static ProductResponseDto fromEntity(Product product) {
         return ProductResponseDto.builder()
                 .productId(product.getProductId())
+                .category(CategoryDto.fromEntity(product.getCategory()))
                 .productName(product.getProductName())
                 .place(product.getPlace())
                 .startDate(product.getStartDate())

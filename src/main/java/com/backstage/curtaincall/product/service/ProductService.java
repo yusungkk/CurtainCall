@@ -176,7 +176,9 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         // 전달된 내용 업데이트
-        // 유효성 검사는 컨트롤러에서
+        Optional<Category> optionalCategory = categoryRepository.findById(requestDto.getCategoryId());
+        Category findCategory = optionalCategory.orElseThrow(() -> new RuntimeException("해당 카테고리 없음"));//Todo: 추후 커스텀 교체
+        product.updateCategory(findCategory);
         product.update(requestDto);
 
         // 이미지 업데이트
