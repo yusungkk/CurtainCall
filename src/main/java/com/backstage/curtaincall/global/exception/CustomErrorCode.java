@@ -32,6 +32,7 @@ public enum CustomErrorCode {
 
     //특가상품 관련 에러코드
     SPECIAL_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 특가상품을 찾을 수 없습니다."),
+    INVALID_DISCOUNT_PERIOD(HttpStatus.BAD_REQUEST, "할인 기간이 상품의 공연 기간을 벗어났습니다."),
 
     // 추가적인 글로벌 에러 코드
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "유효성 검증 실패"),

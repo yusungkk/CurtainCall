@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -38,9 +39,9 @@ public class SpecialProduct extends BaseEntity {
 
     private int discountRate; // 할인율 (0~100, 정수만 허용)
 
-    private LocalDateTime startDate; // 할인 시작 날짜
+    private LocalDate startDate; // 할인 시작 날짜
 
-    private LocalDateTime endDate; // 할인 종료 날짜
+    private LocalDate endDate; // 할인 종료 날짜
 
     @Column(name = "is_deleted")
     private boolean deleted = false;

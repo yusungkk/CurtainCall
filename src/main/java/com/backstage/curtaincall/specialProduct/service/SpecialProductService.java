@@ -34,12 +34,24 @@ public class SpecialProductService {
     public SpecialProductDto createSpecialProduct(SpecialProductDto dto) {
         // 연관된 상품(Product) 조회
         Product product = productRepository.findById(dto.getProductId())
-                .orElseThrow(() -> new IllegalArgumentException("Product not found with id: " + dto.getProductId()));
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+
+        //할인 날짜가 공연날짜 범위를 벗어나면 오류발생
+        validateDate(product, dto);
 
         SpecialProduct sp = SpecialProduct.of(product, dto);
         specialProductRepository.save(sp);
         return sp.toDto();
     }
+
+    private void validateDate(Product product, SpecialProductDto dto) {
+        if (product.getStartDate().isAfter(dto.getDiscountStartDate()) ||
+                product.getEndDate().isBefore(dto.getDiscountEndDate())) {
+
+            throw new CustomException(CustomErrorCode.INVALID_DISCOUNT_PERIOD);
+        }
+    }
+
 
     // 수정
     @Transactional

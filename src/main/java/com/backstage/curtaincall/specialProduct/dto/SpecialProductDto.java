@@ -23,7 +23,7 @@ public class SpecialProductDto {
     // 할인 정보 (특가상품의 할인 기간)
     private Long specialProductId;
     private int discountRate;
-    private LocalDateTime discountStartDate; // 할인 시작일시
-    private LocalDateTime discountEndDate;   // 할인 종료일시
+    private LocalDate discountStartDate; // 할인 시작일시
+    private LocalDate discountEndDate;   // 할인 종료일시
 
 }
