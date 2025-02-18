@@ -1,5 +1,7 @@
 package com.backstage.curtaincall.product.controller;
 
+import com.backstage.curtaincall.global.exception.CustomErrorCode;
+import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.product.dto.ProductDetailResponseDto;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import com.backstage.curtaincall.product.dto.ProductResponseDto;
@@ -13,6 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Objects;
+
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 
 @Slf4j
@@ -74,36 +79,35 @@ public class ProductController {
     }
 
     // 상품 등록 API
-    @PostMapping("/products/create")
-    public ResponseEntity<?> createProduct(
+    @ResponseStatus(CREATED)
+    @PostMapping("/products/new")
+    public void createProduct(
             @RequestPart("product") ProductRequestDto requestDto,
             @RequestPart("image") MultipartFile image) throws IOException {
 
         if (Objects.isNull(image) || image.isEmpty()) {
-            throw new IllegalArgumentException("이미지는 필수입니다.");
+            throw new CustomException(CustomErrorCode.EMPTY_IMAGE);
         }
 
-        ProductResponseDto response = productService.createProduct(requestDto, image);
-        return ResponseEntity.ok(response);
+        productService.createProduct(requestDto, image);
     }
 
     // 상품 수정 API
+    @ResponseStatus(NO_CONTENT)
     @PatchMapping("/products/{productId}")
-    public ResponseEntity<?> updateProduct(
+    public void updateProduct(
             @PathVariable Long productId,
             @RequestPart(value = "product", required = false) ProductRequestDto requestDto,
             @RequestPart(value = "image", required = false) MultipartFile image) throws IOException {
 
-        ProductResponseDto updatedProduct = productService.updateProduct(productId, requestDto, image);
-
-        return ResponseEntity.ok(updatedProduct);
+        productService.updateProduct(productId, requestDto, image);
     }
 
     // 상품 삭제 API
+    @ResponseStatus(NO_CONTENT)
     @DeleteMapping("/products/{productId}")
-    public ResponseEntity<?> deleteProduct(@PathVariable Long productId) {
+    public void deleteProduct(@PathVariable Long productId) {
         productService.deleteProduct(productId);
-        return ResponseEntity.ok("상품이 성공적으로 삭제되었습니다. ID: " + productId);
     }
 
 }

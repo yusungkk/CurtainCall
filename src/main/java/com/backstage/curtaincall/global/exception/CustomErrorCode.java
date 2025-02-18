@@ -9,6 +9,9 @@ import org.springframework.http.HttpStatus;
 public enum CustomErrorCode {
 
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 상품이 없습니다."),
+    EMPTY_IMAGE(HttpStatus.BAD_REQUEST, "이미지는 필수입니다."),
+    FAIL_IMAGE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다."),
+
     FAQ_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 FAQ가 없습니다."),
     FAQ_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 타입이 없습니다."),
 

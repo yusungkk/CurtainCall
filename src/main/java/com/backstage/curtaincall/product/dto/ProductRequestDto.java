@@ -1,7 +1,6 @@
 package com.backstage.curtaincall.product.dto;
 
 import com.backstage.curtaincall.product.entity.Product;
-import jakarta.persistence.Column;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -19,8 +18,8 @@ public class ProductRequestDto {
     @NotBlank(message = "상품명을 입력해주세요.")
     private String productName;
 
-    // @JoinColumn(name = "category_id", nullable = false)
-    // private Long categoryId;
+    @NotBlank(message = "카테고리를 선택해주세요.")
+    private Long categoryId;
 
     @NotBlank(message = "공연 장소를 입력해주세요.")
     private String place;
@@ -36,7 +35,6 @@ public class ProductRequestDto {
 
     private String casting;
     private String notice;
-    // private String imageUrl;
 
     private List<ProductDetailRequestDto> productDetails;
 
