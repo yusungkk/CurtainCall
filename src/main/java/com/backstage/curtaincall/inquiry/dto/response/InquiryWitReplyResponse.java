@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
-public class InquiryResponse {
+public class InquiryWitReplyResponse {
 
     private Long id;
     private String status;
@@ -15,4 +15,6 @@ public class InquiryResponse {
     private String content;
     private LocalDateTime createAt;
     private String type;
+    private String reply;
+    private LocalDateTime replyAt;
 }

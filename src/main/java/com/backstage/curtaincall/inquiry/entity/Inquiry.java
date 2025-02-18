@@ -1,5 +1,6 @@
 package com.backstage.curtaincall.inquiry.entity;
 
+import com.backstage.curtaincall.global.entity.BaseEntity;
 import com.backstage.curtaincall.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-public class Inquiry {
+public class Inquiry extends BaseEntity {
 
     @Id
     @Column(name = "inquiry_id")
@@ -34,6 +35,9 @@ public class Inquiry {
     @Enumerated(STRING)
     private InquiryStatus status;
 
+    @OneToOne(fetch = LAZY, mappedBy = "inquiry")
+    private InquiryReply reply;
+
     private Inquiry(User user, String title, String content, String replyEmail, QuestionType type) {
         this.user = user;
         this.title = title;
@@ -45,5 +49,9 @@ public class Inquiry {
 
     public static Inquiry create(User user, String title, String content, String replyEmail, QuestionType type) {
         return new Inquiry(user, title, content, replyEmail, type);
+    }
+
+    public void changeStatus() {
+        this.status = InquiryStatus.COMPLETE;
     }
 }
