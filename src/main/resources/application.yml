@@ -1,26 +1,18 @@
 spring:
-  application:
-    name: curtaincall
-
-  datasource:
-    url: jdbc:mysql://127.0.0.1:3306/curtaincall
-    username: root
-    password: gmlwogmlwo7296@
-    hikari:
-      driver-class-name: com.mysql.cj.jdbc.Driver
-
   jpa:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-        ddl-auto: validate
-        format_sql: true
+    hibernate:
+      ddl-auto: create-drop
     show-sql: true
 
-  servlet:
-    multipart:
-      max-file-size: 10MB
-      max-request-size: 10MB
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/curtaincall
+    username: root
+    password: gmlwogmlwo7296@
+
 
   jwt:
     secret-key: "32fdsafsafadsfdsafsdfdasfdasfa1dsfadsafadsfdsafsadfdsafdsafdsfasdfasdfsa"
@@ -28,16 +20,30 @@ spring:
 cloud:
   aws:
     credentials:
-      accessKey: "321"
-      secretKey: "312"
+      accessKey: AKIAVWABKC4475RVVSHO
+      secretKey: 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
     s3:
-      bucket: curtaincall-image
+      bucket: curtaincall-images
     region:
       static: ap-northeast-2
     stack:
       auto: false
 
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+
+
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+    org:
+      springframework:
+        cache: trace # Redis 사용에 대한 로그가 조회되도록 설정
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE

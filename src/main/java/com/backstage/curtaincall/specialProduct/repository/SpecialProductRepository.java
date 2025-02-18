@@ -14,18 +14,15 @@ public class SpecialProductRepository {
     EntityManager em;
 
     public List<SpecialProduct> findAllWithProduct(){
-        List<SpecialProduct> specialProducts = em.createQuery(
-                "select sp from SpecialProduct sp join sp.product p where sp.deleted =false ", SpecialProduct.class)
-                        .getResultList();
-        return specialProducts;
+        return em.createQuery("select sp from SpecialProduct sp join sp.product p where sp.deleted =false ", SpecialProduct.class)
+                 .getResultList();
     }
 
     public Optional<SpecialProduct> findById(Long id) {
-        return em.createQuery(
-                        "select sp from SpecialProduct sp where sp.id = :id and sp.deleted = false", SpecialProduct.class)
-                .setParameter("id", id)
-                .getResultStream()
-                .findFirst();
+        return em.createQuery("select sp from SpecialProduct sp where sp.id = :id and sp.deleted = false", SpecialProduct.class)
+                 .setParameter("id", id)
+                 .getResultStream()
+                 .findFirst();
     }
 
 
