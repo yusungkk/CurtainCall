@@ -3,6 +3,7 @@ package com.backstage.curtaincall.category.domain;
 
 import com.backstage.curtaincall.category.dto.CategoryDto;
 import com.backstage.curtaincall.global.entity.BaseEntity;
+import com.backstage.curtaincall.product.entity.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -51,9 +52,8 @@ public class Category extends BaseEntity {
     @Column(name = "is_deleted")
     private boolean deleted = false;
 
-// 양방향 참조 필요할 때 주석 풀기
-//    @OneToMany(mappedBy = "category")
-//    private List<Product> products = new ArrayList<>();
+    @OneToMany(mappedBy = "category")
+    private List<Product> products = new ArrayList<>();
 
     private Category(String name) {
         this.name = name;

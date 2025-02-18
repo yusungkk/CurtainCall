@@ -24,12 +24,10 @@ public class Product extends BaseEntity {
 
     @Column(nullable = false, length = 50)
     private String productName;
-/*
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
-*/
 
     @Column(nullable = false, length = 50)
     private String place;
@@ -67,5 +65,9 @@ public class Product extends BaseEntity {
 
     public void updateImage(ProductImage image) {
         this.productImage = image;
+    }
+
+    public void updateCategory(Category category) {
+        this.category = category;
     }
 }
