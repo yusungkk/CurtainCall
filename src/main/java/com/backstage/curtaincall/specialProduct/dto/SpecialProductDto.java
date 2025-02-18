@@ -13,9 +13,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SpecialProductDto {
 
-
-    private Long specialProductId;
-
     // 상품 정보
     private Long productId;
     private String productName;
@@ -24,6 +21,7 @@ public class SpecialProductDto {
     private LocalDate productEndDate;   // Product의 종료날짜
 
     // 할인 정보 (특가상품의 할인 기간)
+    private Long specialProductId;
     private int discountRate;
     private LocalDateTime discountStartDate; // 할인 시작일시
     private LocalDateTime discountEndDate;   // 할인 종료일시

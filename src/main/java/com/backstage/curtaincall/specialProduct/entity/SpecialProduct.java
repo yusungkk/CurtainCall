@@ -15,6 +15,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -23,16 +24,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Getter
 @Table(name ="special_products")
+@Builder
 public class SpecialProduct extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "special_product_id")
-    Long id;
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "procuct_id", nullable = false)
-    Product product;
+    private Product product;
 
     private int discountRate; // 할인율 (0~100, 정수만 허용)
 
@@ -42,6 +44,16 @@ public class SpecialProduct extends BaseEntity {
 
     @Column(name = "is_deleted")
     private boolean deleted = false;
+
+    public static SpecialProduct of(Product product, SpecialProductDto dto) {
+        return SpecialProduct.builder()
+                .product(product)
+                .discountRate(dto.getDiscountRate())
+                .startDate(dto.getDiscountStartDate())
+                .endDate(dto.getDiscountEndDate())
+                .deleted(false)  // 신규 생성 시 삭제 플래그 false
+                .build();
+    }
 
 
     public SpecialProductDto toDto(){
@@ -55,5 +67,19 @@ public class SpecialProduct extends BaseEntity {
                 .discountStartDate(this.startDate)
                 .discountEndDate(this.endDate)
                 .build();
+    }
+
+    public void update(SpecialProductDto dto) {
+        this.discountRate = dto.getDiscountRate();
+        this.startDate = dto.getDiscountStartDate();
+        this.endDate  = dto.getDiscountEndDate();
+    }
+
+    public void delete() {
+        this.deleted = true;
+    }
+
+    public void restore() {
+        this.deleted = false;
     }
 }
