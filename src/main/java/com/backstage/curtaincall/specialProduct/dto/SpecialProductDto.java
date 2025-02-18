@@ -1,7 +1,9 @@
 package com.backstage.curtaincall.specialProduct.dto;
 
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,17 +15,23 @@ import lombok.NoArgsConstructor;
 @Builder
 public class SpecialProductDto {
 
-    // 상품 정보
+    // Product 정보
     private Long productId;
     private String productName;
     private int price;
-    private LocalDate productStartDate; // Product의 시작날짜
-    private LocalDate productEndDate;   // Product의 종료날짜
+    private LocalDate startDate;
+    private LocalDate endDate;
 
-    // 할인 정보 (특가상품의 할인 기간)
+    // SpecialProduct 정보
     private Long specialProductId;
+
+    @Min(value = 0, message = "할인율은 {value}% 이상이어야 합니다.")
+    @Max(value = 100, message = "할인율은 {value}% 이하이어야 합니다.")
     private int discountRate;
     private LocalDate discountStartDate; // 할인 시작일시
     private LocalDate discountEndDate;   // 할인 종료일시
+
+    // ProductDetail 정보
+    private LocalDate performanceDate; //해당 공연날짜
 
 }
