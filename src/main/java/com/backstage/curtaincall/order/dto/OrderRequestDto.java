@@ -22,7 +22,7 @@ public class OrderRequestDto {
                 .user(user)
                 .price(this.price)
                 .status(Status.PENDING) // 결제 대기 상태
-                .orderNo(UUID.randomUUID().toString()) // 랜덤 주문 번호 생성
+                .orderNo(String.valueOf(System.currentTimeMillis())) // 랜덤 주문 번호 생성
                 .build();
     }
 }
