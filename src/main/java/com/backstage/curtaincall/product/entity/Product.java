@@ -46,6 +46,8 @@ public class Product extends BaseEntity {
     @Column(nullable = false, length = 500)
     private String notice;
 
+    private Long salesCount;    // 총 판매량
+
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true) // 부모 삭제시 자동 삭제 + 관계 끊김
     private List<ProductDetail> productDetails = new ArrayList<>();
 
@@ -66,6 +68,9 @@ public class Product extends BaseEntity {
     public void updateImage(ProductImage image) {
         this.productImage = image;
     }
+
+    public void setSalesCount(long salesCount) {
+        this.salesCount = salesCount;
 
     public void updateCategory(Category category) {
         this.category = category;

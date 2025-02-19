@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 public enum CustomErrorCode {
 
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 상품이 없습니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 주문이 없습니다."),
     EMPTY_IMAGE(HttpStatus.BAD_REQUEST, "이미지는 필수입니다."),
     FAIL_IMAGE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다."),
 
@@ -25,6 +26,7 @@ public enum CustomErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
 
+    SEAT_ALREADY_RESERVED(HttpStatus.BAD_REQUEST, "해당 좌석은 이미 선택되었습니다. 다른 좌석으로 다시 시도해주세요.");
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
 
     // 카테고리 관련 에러 코드
@@ -42,6 +44,7 @@ public enum CustomErrorCode {
     NPE(HttpStatus.BAD_REQUEST, "Null Pointer Exception"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류")
     ;
+>>>>>>> src/main/java/com/backstage/curtaincall/global/exception/CustomErrorCode.java
 
     private final HttpStatus status;
     private final String message;
