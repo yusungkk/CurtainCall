@@ -26,7 +26,7 @@ public enum CustomErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
     EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "토큰이 만료되었습니다."),
 
-    SEAT_ALREADY_RESERVED(HttpStatus.BAD_REQUEST, "해당 좌석은 이미 선택되었습니다. 다른 좌석으로 다시 시도해주세요.");
+    SEAT_ALREADY_RESERVED(HttpStatus.BAD_REQUEST, "해당 좌석은 이미 선택되었습니다. 다른 좌석으로 다시 시도해주세요."),
     FORBIDDEN(HttpStatus.FORBIDDEN, "권한이 없습니다."),
 
     // 카테고리 관련 에러 코드
@@ -44,7 +44,6 @@ public enum CustomErrorCode {
     NPE(HttpStatus.BAD_REQUEST, "Null Pointer Exception"),
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류")
     ;
->>>>>>> src/main/java/com/backstage/curtaincall/global/exception/CustomErrorCode.java
 
     private final HttpStatus status;
     private final String message;
