@@ -11,6 +11,7 @@ import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.repository.ProductRepository;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,6 +38,8 @@ public class SpecialProductService {
                 .toList();
     }
 
+    //단건조회
+    @Cacheable(cacheNames = "findByIdWithProduct", key = "'specialProduct:size:' + #size", cacheManager = "cacheManager")
     public SpecialProductDto findByIdWithProduct(Long id) {
         SpecialProduct sp = specialProductRepository.findByIdWithProduct(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
