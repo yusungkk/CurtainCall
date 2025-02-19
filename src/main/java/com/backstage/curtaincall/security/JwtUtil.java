@@ -62,15 +62,7 @@ public class JwtUtil {
         }
     }
 
-    public String extractEmail(String bearerToken) {
-        String token = resolveBearerToken(bearerToken);
+    public String extractEmail(String token) {
         return (token != null) ? getUserEmail(token) : null;
-    }
-
-    private String resolveBearerToken(String bearerToken) {
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            return bearerToken.substring(7);
-        }
-        return null;
     }
 }
