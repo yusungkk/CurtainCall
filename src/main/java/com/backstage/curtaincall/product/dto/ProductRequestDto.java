@@ -49,6 +49,7 @@ public class ProductRequestDto {
                 .price(price)
                 .casting(casting)
                 .notice(notice)
+                .salesCount(0L)
                 .build();
     }
 }

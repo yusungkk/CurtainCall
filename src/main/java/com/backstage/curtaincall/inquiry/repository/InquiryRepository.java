@@ -8,11 +8,14 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
-public interface InquiryRepository extends JpaRepository<Inquiry, Long> {
+public interface InquiryRepository extends JpaRepository<Inquiry, Long>, InquiryCustomRepository {
 
     @Query("select i from Inquiry i where i.user.email = :email")
     Page<Inquiry> findAllByUser(String email, Pageable pageable);
 
-    @Query("select i from Inquiry i where i.id = :id and i.user.email = :email")
-    Optional<Inquiry> findOneByIdAndEmail(Long id, String email);
+    @Query("select i from Inquiry i left join fetch i.reply where i.id = :id and i.user.email = :email")
+    Optional<Inquiry> findOneByIdAndEmailWithReply(Long id, String email);
+
+    @Query("select i from Inquiry i left join fetch i.reply where i.id = :id")
+    Optional<Inquiry> findByIdWithReply(Long id);
 }

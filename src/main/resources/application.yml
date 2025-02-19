@@ -1,28 +1,33 @@
 spring:
-  application.name: curtaincall
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
 
   datasource:
-    url: jdbc:mariadb://localhost:3306/curtaincall
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/curtaincall
     username: root
-    password: passw0rd
+    password: gmlwogmlwo7296@
 
-  jpa:
-    hibernate:
-      ddl-auto: create
-    properties:
-        format_sql: true
 
-  cloud:
-    aws:
-      credentials:
-        accessKey:
-        secretKey:
-      s3:
-        bucket: curtaincall-image
-      region:
-        static: ap-northeast-2
-      stack:
-        auto: false
+  jwt:
+    secret-key: "32fdsafsafadsfdsafsdfdasfdasfa1dsfadsafadsfdsafsadfdsafdsafdsfasdfasdfsa"
+
+cloud:
+  aws:
+    credentials:
+      accessKey: AKIAVWABKC4475RVVSHO
+      secretKey: 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
+    s3:
+      bucket: curtaincall-images
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: false
 
   servlet:
     multipart:
@@ -30,7 +35,15 @@ spring:
       max-request-size: 10MB
 
 
+
 logging:
   level:
-    org.hibernate.SQL: debug
-    org.hibernate.orm.jdbc.bind: trace
+    org:
+      springframework:
+        cache: trace # Redis 사용에 대한 로그가 조회되도록 설정
+      hibernate:
+        SQL: DEBUG
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE

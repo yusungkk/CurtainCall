@@ -24,6 +24,7 @@ public class ProductResponseDto {
     private int price;
     private String casting;
     private String notice;
+    private Long salesCount;
     private String productImageUrl;
     private List<ProductDetailResponseDto> productDetails;
 
@@ -39,6 +40,7 @@ public class ProductResponseDto {
                 .price(product.getPrice())
                 .casting(product.getCasting())
                 .notice(product.getNotice())
+                .salesCount(product.getSalesCount())
                 .productImageUrl(product.getProductImage() != null ? product.getProductImage().getImageUrl() : null)
                 .productDetails(
                         Optional.ofNullable(product.getProductDetails())  // null 체크

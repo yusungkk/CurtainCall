@@ -24,10 +24,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
-        String bearerToken = request.getHeader("Authorization");
+        String token = null;
+        if (request.getCookies() != null) {
+            for (var cookie : request.getCookies()) {
+                if ("Authorization".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
 
-        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
-            String token = bearerToken.substring(7);
+        if (token != null) {
             try {
                 String email = jwtUtil.getUserEmail(token);
                 UserDetails userDetails = User.withUsername(email).password("").roles("USER").build();
