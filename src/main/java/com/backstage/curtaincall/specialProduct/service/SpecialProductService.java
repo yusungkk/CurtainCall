@@ -9,9 +9,12 @@ import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
 import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.repository.ProductRepository;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -86,6 +89,25 @@ public class SpecialProductService {
         sp.restore();
     }
 
+    // 매일 자정에 할인 종료 날짜가 오늘 이전인 상품 삭제(아직 삭제되지 않은 경우)
+    @Transactional
+    public void deleteExpiredSpecialProducts() {
+        LocalDate today = LocalDate.now();
+        List<SpecialProduct> expiredProducts = specialProductRepository.findAllExpiredSpecialProducts(today);
+        expiredProducts.forEach(SpecialProduct::delete);
+        System.out.println("Deleted expired products: " + expiredProducts.size());
+    }
+
+    //매일 자정에 할인 시작 날짜가 오늘인 상품 redis에 생성
+    public void cacheStartingSpecialProducts(RedisTemplate<String, Object> redisTemplate) {
+        LocalDate today = LocalDate.now();
+        List<SpecialProduct> startingProducts = specialProductRepository.findAllStartingSpecialProducts(today);
+        List<SpecialProductDto> dtos = startingProducts.stream()
+                .map(SpecialProduct::toDto)
+                .collect(Collectors.toList());
+        redisTemplate.opsForValue().set("starting_special_products", dtos);
+    }
+
     private void validateDate(Product product, SpecialProductDto dto) {
         if (product.getStartDate().isAfter(dto.getDiscountStartDate()) ||
                 product.getEndDate().isBefore(dto.getDiscountEndDate())) {
@@ -93,6 +115,8 @@ public class SpecialProductService {
             throw new CustomException(CustomErrorCode.INVALID_DISCOUNT_PERIOD);
         }
     }
+
+
 
 
 }

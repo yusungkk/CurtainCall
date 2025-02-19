@@ -3,6 +3,7 @@ package com.backstage.curtaincall.specialProduct.repository;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.stereotype.Repository;
@@ -54,4 +55,21 @@ public class SpecialProductRepository {
     }
 
 
+    // 할인 종료 날짜가 오늘 이전인 상품 조회 (아직 삭제되지 않은 경우)
+    public List<SpecialProduct> findAllExpiredSpecialProducts(LocalDate today) {
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp WHERE sp.endDate =:today AND sp.deleted = false",
+                        SpecialProduct.class)
+                .setParameter("today", today)
+                .getResultList();
+    }
+
+    // 할인 시작 날짜가 오늘인 상품 조회
+    public List<SpecialProduct> findAllStartingSpecialProducts(LocalDate today) {
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp WHERE sp.startDate = :today",
+                        SpecialProduct.class)
+                .setParameter("today", today)
+                .getResultList();
+    }
 }
