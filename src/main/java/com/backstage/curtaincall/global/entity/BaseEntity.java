@@ -1,5 +1,6 @@
 package com.backstage.curtaincall.global.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -15,9 +16,11 @@ import java.time.LocalDateTime;
 public class BaseEntity {
 
     @CreatedDate
+    @Column(name= "created_at")
     private LocalDateTime createAt;
 
     @CreatedDate
     @LastModifiedDate
+    @Column(name= "updated_at")
     private LocalDateTime updateAt;
 }

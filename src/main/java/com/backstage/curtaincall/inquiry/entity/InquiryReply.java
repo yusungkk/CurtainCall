@@ -1,5 +1,6 @@
 package com.backstage.curtaincall.inquiry.entity;
 
+import com.backstage.curtaincall.global.entity.BaseEntity;
 import com.backstage.curtaincall.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -12,8 +13,7 @@ import static lombok.AccessLevel.PROTECTED;
 @Entity
 @Getter
 @NoArgsConstructor(access = PROTECTED)
-public class InquiryReply {
-
+public class InquiryReply extends BaseEntity {
 
     @Id
     @Column(name = "inquiry_reply_id")
@@ -30,4 +30,14 @@ public class InquiryReply {
     @JoinColumn(name = "admin_id")
     @ManyToOne(fetch = LAZY)
     private User admin;
+
+    private InquiryReply(String content, Inquiry inquiry, User admin) {
+        this.content = content;
+        this.inquiry = inquiry;
+        this.admin = admin;
+    }
+
+    public static InquiryReply create(String content, Inquiry inquiry, User admin) {
+        return new InquiryReply(content, inquiry, admin);
+    }
 }

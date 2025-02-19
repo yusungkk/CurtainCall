@@ -1,10 +1,9 @@
 package com.backstage.curtaincall.product.entity;
 
+import com.backstage.curtaincall.category.domain.Category;
 import com.backstage.curtaincall.global.entity.BaseEntity;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -23,14 +22,13 @@ public class Product extends BaseEntity {
     @Column(name = "product_id")
     private Long productId;
 
-    @NotBlank(message = "상품명을 입력해주세요.")
     @Column(nullable = false, length = 50)
     private String productName;
 
-    // @JoinColumn(name = "category_id", nullable = false)
-    // private Long categoryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", nullable = false)
+    private Category category;
 
-    @NotBlank(message = "공연 장소를 입력해주세요.")
     @Column(nullable = false, length = 50)
     private String place;
 
@@ -38,11 +36,9 @@ public class Product extends BaseEntity {
     private LocalDate endDate;
 
     @Column(nullable = false)
-    @Min(value = 1, message = "러닝타임은 최소 1분 이상이어야 합니다.")
     private int runningTime;
 
     @Column(nullable = false)
-    @Min(value = 0, message = "가격은 0 이상이어야 합니다.")
     private int price;
 
     private String casting;
@@ -75,5 +71,8 @@ public class Product extends BaseEntity {
 
     public void setSalesCount(long salesCount) {
         this.salesCount = salesCount;
+
+    public void updateCategory(Category category) {
+        this.category = category;
     }
 }
