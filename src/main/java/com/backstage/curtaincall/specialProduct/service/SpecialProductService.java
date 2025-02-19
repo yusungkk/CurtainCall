@@ -39,7 +39,7 @@ public class SpecialProductService {
     }
 
     //단건조회
-    @Cacheable(cacheNames = "findByIdWithProduct", key = "'specialProduct:size:' + #size", cacheManager = "cacheManager")
+    @Cacheable(cacheNames = "findByIdWithProduct", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
     public SpecialProductDto findByIdWithProduct(Long id) {
         SpecialProduct sp = specialProductRepository.findByIdWithProduct(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));

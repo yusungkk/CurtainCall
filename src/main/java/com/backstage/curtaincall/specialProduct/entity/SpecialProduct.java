@@ -33,7 +33,7 @@ public class SpecialProduct extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "procuct_id", nullable = false)
+    @JoinColumn(name = "product_id", nullable = false)
     private Product product;
 
     private int discountRate; // 할인율 (0~100, 정수만 허용)
