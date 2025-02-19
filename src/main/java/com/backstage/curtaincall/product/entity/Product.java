@@ -71,6 +71,7 @@ public class Product extends BaseEntity {
 
     public void setSalesCount(long salesCount) {
         this.salesCount = salesCount;
+    }
 
     public void updateCategory(Category category) {
         this.category = category;
