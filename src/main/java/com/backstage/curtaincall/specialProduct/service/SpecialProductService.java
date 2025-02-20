@@ -70,12 +70,16 @@ public class SpecialProductService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
-        validateDate(product, dto);
+        validateoverDate(product, dto);
+        //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
+        validateOverLappingDate(product, dto);
 
         SpecialProduct sp = SpecialProduct.of(product, dto);
         specialProductRepository.save(sp);
         return sp.toDto();
     }
+
+
 
     // 수정: 캐시 업데이트 반영
     @Transactional
@@ -123,10 +127,18 @@ public class SpecialProductService {
         redisTemplate.opsForValue().set("specialProduct", dtos);
     }
 
-    private void validateDate(Product product, SpecialProductDto dto) {
+    private void validateoverDate(Product product, SpecialProductDto dto) {
         if (product.getStartDate().isAfter(dto.getDiscountStartDate()) ||
                 product.getEndDate().isBefore(dto.getDiscountEndDate())) {
             throw new CustomException(CustomErrorCode.INVALID_DISCOUNT_PERIOD);
+        }
+    }
+
+    private void validateOverLappingDate(Product product, SpecialProductDto dto) {
+        List<SpecialProduct> overlappingProducts = specialProductRepository.findAllOverlappingDates(
+                product.getProductId(), dto.getDiscountStartDate(), dto.getDiscountEndDate());
+        if (!overlappingProducts.isEmpty()) {
+            throw new CustomException(CustomErrorCode.OVERLAPPING_DISCOUNT_PERIOD);
         }
     }
 }

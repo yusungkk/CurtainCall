@@ -24,7 +24,6 @@ public class SpecialProductRepository {
     }
 
     // 이름 검색 및 페이지네이션을 적용한 전체 조회
-    // 이름 검색 및 페이지네이션 지원 findAll 메서드 추가
     public Page<SpecialProduct> findAll(String keyword, Pageable pageable) {
         StringBuilder jpql = new StringBuilder("select sp from SpecialProduct sp join fetch sp.product p where sp.deleted = false ");
         StringBuilder countJpql = new StringBuilder("select count(sp) from SpecialProduct sp join sp.product p where sp.deleted = false ");
@@ -62,6 +61,34 @@ public class SpecialProductRepository {
                  .getResultStream()
                  .findFirst();
     }
+
+    public List<SpecialProduct> findAllByProductId(Long productId, LocalDate startDate, LocalDate endDate){
+        return em.createQuery("SELECT sp from SpecialProduct sp "
+                        + "where sp.product.id =: productId "
+                        + "AND sp.deleted =false "
+                        + "AND (sp.startDate <=: startDate AND  sp.endDate >=:startDate )"
+                        + "AND (sp.startDate <=: endDate AND  sp.endDate >=:endDate )", SpecialProduct.class)
+                .setParameter("productId", productId)
+                .setParameter("startDate",startDate)
+                .setParameter("endDate",endDate)
+                .getResultList();
+    }
+
+
+    public List<SpecialProduct> findAllOverlappingDates(Long productId, LocalDate newStartDate, LocalDate newEndDate) {
+        return em.createQuery("SELECT sp FROM SpecialProduct sp "
+                        + "WHERE sp.product.id = :productId "
+                        + "AND sp.deleted = false "
+                        + "AND ((sp.startDate BETWEEN :newStartDate AND :newEndDate) "
+                        + "OR (sp.endDate BETWEEN :newStartDate AND :newEndDate) "
+                        + "OR (sp.startDate <= :newStartDate AND sp.endDate >= :newEndDate) "
+                        + "OR (sp.startDate >= :newStartDate AND sp.endDate <= :newEndDate))", SpecialProduct.class)
+                .setParameter("productId", productId)
+                .setParameter("newStartDate", newStartDate)
+                .setParameter("newEndDate", newEndDate)
+                .getResultList();
+    }
+
 
     public Optional<SpecialProduct> findByIdWithProduct(Long id) {
         return em.createQuery(
