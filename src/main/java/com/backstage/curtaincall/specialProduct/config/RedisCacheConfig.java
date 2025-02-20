@@ -42,7 +42,7 @@ public class RedisCacheConfig {
                 .defaultCacheConfig()
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(serializer))
-                .entryTtl(Duration.ofMinutes(10L));
+                .entryTtl(Duration.ofHours(10L));
 
         return RedisCacheManager.builder(redisConnectionFactory)
                 .cacheDefaults(redisCacheConfiguration)

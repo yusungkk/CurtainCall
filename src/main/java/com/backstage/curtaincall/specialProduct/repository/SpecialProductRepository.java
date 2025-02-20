@@ -56,12 +56,13 @@ public class SpecialProductRepository {
 
 
     // 할인 종료 날짜가 오늘 이전인 상품 조회 (아직 삭제되지 않은 경우)
-    public List<SpecialProduct> findAllExpiredSpecialProducts(LocalDate today) {
-        return em.createQuery(
-                        "SELECT sp FROM SpecialProduct sp WHERE sp.endDate =:today AND sp.deleted = false",
-                        SpecialProduct.class)
-                .setParameter("today", today)
-                .getResultList();
+    public void deleteExpiredSpecialProducts(LocalDate today) {
+        int updatedCount = em.createQuery(
+                        "UPDATE SpecialProduct sp SET sp.deleted = true WHERE sp.endDate >:today AND sp.deleted = false",
+                                    SpecialProduct.class)
+                             .setParameter("today", today)
+                             .executeUpdate();
+        em.clear();
     }
 
     // 할인 시작 날짜가 오늘인 상품 조회
