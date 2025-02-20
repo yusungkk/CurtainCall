@@ -3,9 +3,13 @@ package com.backstage.curtaincall.specialProduct.repository;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -17,6 +21,33 @@ public class SpecialProductRepository {
     public List<SpecialProduct> findAll(){
         return em.createQuery("select sp from SpecialProduct sp join FETCH sp.product p where sp.deleted =false ", SpecialProduct.class)
                  .getResultList();
+    }
+
+    // 이름 검색 및 페이지네이션을 적용한 전체 조회
+    // 이름 검색 및 페이지네이션 지원 findAll 메서드 추가
+    public Page<SpecialProduct> findAll(String keyword, Pageable pageable) {
+        StringBuilder jpql = new StringBuilder("select sp from SpecialProduct sp join fetch sp.product p where sp.deleted = false ");
+        StringBuilder countJpql = new StringBuilder("select count(sp) from SpecialProduct sp join sp.product p where sp.deleted = false ");
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            jpql.append("and p.productName like :keyword ");
+            countJpql.append("and p.productName like :keyword ");
+        }
+
+        TypedQuery<SpecialProduct> query = em.createQuery(jpql.toString(), SpecialProduct.class);
+        TypedQuery<Long> countQuery = em.createQuery(countJpql.toString(), Long.class);
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            query.setParameter("keyword", "%" + keyword + "%");
+            countQuery.setParameter("keyword", "%" + keyword + "%");
+        }
+
+        query.setFirstResult((int) pageable.getOffset());
+        query.setMaxResults(pageable.getPageSize());
+        List<SpecialProduct> content = query.getResultList();
+        Long total = countQuery.getSingleResult();
+
+        return new PageImpl<>(content, pageable, total);
     }
 
     //삭제된것만 전체조회
