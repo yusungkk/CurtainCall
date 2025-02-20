@@ -60,6 +60,10 @@ dependencies {
 	// StringEscapeUtils 사용하기 위해 추가
 	implementation 'org.apache.commons:commons-text:1.10.0'
 
+	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+	//웹소켓 추가
+	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 }
 
 tasks.named('test') {
