@@ -1,6 +1,7 @@
 package com.backstage.curtaincall.specialProduct.repository;
 
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
@@ -18,23 +19,33 @@ public class SpecialProductRepository {
     @PersistenceContext
     EntityManager em;
 
-    public List<SpecialProduct> findAll(){
-        return em.createQuery("select sp from SpecialProduct sp join FETCH sp.product p where sp.deleted =false ", SpecialProduct.class)
-                 .getResultList();
+    public List<SpecialProduct> findAll() {
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp JOIN FETCH sp.product p " +
+                                "WHERE sp.status != :deletedStatus", SpecialProduct.class)
+                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                .getResultList();
     }
 
     // 이름 검색 및 페이지네이션을 적용한 전체 조회
     public Page<SpecialProduct> findAll(String keyword, Pageable pageable) {
-        StringBuilder jpql = new StringBuilder("select sp from SpecialProduct sp join fetch sp.product p where sp.deleted = false ");
-        StringBuilder countJpql = new StringBuilder("select count(sp) from SpecialProduct sp join sp.product p where sp.deleted = false ");
+        StringBuilder jpql = new StringBuilder(
+                "SELECT sp FROM SpecialProduct sp JOIN FETCH sp.product p " +
+                        "WHERE sp.status != :deletedStatus ");
+        StringBuilder countJpql = new StringBuilder(
+                "SELECT COUNT(sp) FROM SpecialProduct sp JOIN sp.product p " +
+                        "WHERE sp.status != :deletedStatus ");
 
         if (keyword != null && !keyword.trim().isEmpty()) {
-            jpql.append("and p.productName like :keyword ");
-            countJpql.append("and p.productName like :keyword ");
+            jpql.append("AND p.productName LIKE :keyword ");
+            countJpql.append("AND p.productName LIKE :keyword ");
         }
 
         TypedQuery<SpecialProduct> query = em.createQuery(jpql.toString(), SpecialProduct.class);
         TypedQuery<Long> countQuery = em.createQuery(countJpql.toString(), Long.class);
+
+        query.setParameter("deletedStatus", SpecialProductStatus.DELETED);
+        countQuery.setParameter("deletedStatus", SpecialProductStatus.DELETED);
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             query.setParameter("keyword", "%" + keyword + "%");
@@ -49,61 +60,58 @@ public class SpecialProductRepository {
         return new PageImpl<>(content, pageable, total);
     }
 
-    //삭제된것만 전체조회
-    public List<SpecialProduct> findAllDeleted(){
-        return em.createQuery("select sp from SpecialProduct sp join FETCH sp.product p where sp.deleted =true ", SpecialProduct.class)
+    // 삭제된 것만 전체 조회
+    public List<SpecialProduct> findAllDeleted() {
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp JOIN FETCH sp.product p " +
+                                "WHERE sp.status = :deletedStatus", SpecialProduct.class)
+                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
                 .getResultList();
     }
 
     public Optional<SpecialProduct> findById(Long id) {
-        return em.createQuery("select sp from SpecialProduct sp where sp.id = :id and sp.deleted = false", SpecialProduct.class)
-                 .setParameter("id", id)
-                 .getResultStream()
-                 .findFirst();
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp " +
+                                "WHERE sp.id = :id AND sp.status != :deletedStatus", SpecialProduct.class)
+                .setParameter("id", id)
+                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                .getResultStream()
+                .findFirst();
     }
-
-    public List<SpecialProduct> findAllByProductId(Long productId, LocalDate startDate, LocalDate endDate){
-        return em.createQuery("SELECT sp from SpecialProduct sp "
-                        + "where sp.product.id =: productId "
-                        + "AND sp.deleted =false "
-                        + "AND (sp.startDate <=: startDate AND  sp.endDate >=:startDate )"
-                        + "AND (sp.startDate <=: endDate AND  sp.endDate >=:endDate )", SpecialProduct.class)
-                .setParameter("productId", productId)
-                .setParameter("startDate",startDate)
-                .setParameter("endDate",endDate)
-                .getResultList();
-    }
-
 
     public List<SpecialProduct> findAllOverlappingDates(Long productId, LocalDate newStartDate, LocalDate newEndDate) {
-        return em.createQuery("SELECT sp FROM SpecialProduct sp "
-                        + "WHERE sp.product.id = :productId "
-                        + "AND sp.deleted = false "
-                        + "AND ((sp.startDate BETWEEN :newStartDate AND :newEndDate) "
-                        + "OR (sp.endDate BETWEEN :newStartDate AND :newEndDate) "
-                        + "OR (sp.startDate <= :newStartDate AND sp.endDate >= :newEndDate) "
-                        + "OR (sp.startDate >= :newStartDate AND sp.endDate <= :newEndDate))", SpecialProduct.class)
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp " +
+                                "WHERE sp.product.id = :productId " +
+                                "AND sp.status != :deletedStatus " +
+                                "AND ((sp.startDate BETWEEN :newStartDate AND :newEndDate) " +
+                                "OR (sp.endDate BETWEEN :newStartDate AND :newEndDate) " +
+                                "OR (sp.startDate <= :newStartDate AND sp.endDate >= :newEndDate) " +
+                                "OR (sp.startDate >= :newStartDate AND sp.endDate <= :newEndDate))", SpecialProduct.class)
                 .setParameter("productId", productId)
                 .setParameter("newStartDate", newStartDate)
                 .setParameter("newEndDate", newEndDate)
+                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
                 .getResultList();
     }
-
 
     public Optional<SpecialProduct> findByIdWithProduct(Long id) {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp " +
                                 "JOIN FETCH sp.product p " +
-                                "WHERE sp.id = :id AND sp.deleted = false", SpecialProduct.class)
+                                "WHERE sp.id = :id AND sp.status != :deletedStatus", SpecialProduct.class)
                 .setParameter("id", id)
+                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
                 .getResultStream()
                 .findFirst();
     }
 
-
-    public Optional<SpecialProduct> findByIdDeleted(Long id) {
-        return em.createQuery("select sp from SpecialProduct sp where sp.id = :id and sp.deleted =true", SpecialProduct.class)
+    public Optional<SpecialProduct> findByIdUpcoming(Long id) {
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp " +
+                                "WHERE sp.id = :id AND sp.status = :upcomingStatus", SpecialProduct.class)
                 .setParameter("id", id)
+                .setParameter("upcomingStatus", SpecialProductStatus.UPCOMING)
                 .getResultStream()
                 .findFirst();
     }
@@ -112,14 +120,14 @@ public class SpecialProductRepository {
         em.persist(specialProduct);
     }
 
-
-    // 할인 종료 날짜가 오늘 이전인 상품 조회 (아직 삭제되지 않은 경우)
+    // 할인 종료 날짜가 오늘 이전인 상품을 자동으로 만료 처리 (DELETED 상태로 변경)
     public void deleteExpiredSpecialProducts(LocalDate today) {
         int updatedCount = em.createQuery(
-                        "UPDATE SpecialProduct sp SET sp.deleted = true WHERE sp.endDate >:today AND sp.deleted = false",
-                                    SpecialProduct.class)
-                             .setParameter("today", today)
-                             .executeUpdate();
+                        "UPDATE SpecialProduct sp SET sp.status = :deletedStatus " +
+                                "WHERE sp.endDate < :today AND sp.status != :deletedStatus")
+                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                .setParameter("today", today)
+                .executeUpdate();
         em.clear();
     }
 

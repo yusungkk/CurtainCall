@@ -5,6 +5,8 @@ import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -42,8 +44,11 @@ public class SpecialProduct extends BaseEntity {
 
     private LocalDate endDate; // 할인 종료 날짜
 
-    @Column(name = "is_deleted")
-    private boolean deleted = false;
+//    @Column(name = "is_deleted")
+//    private boolean deleted = false;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private SpecialProductStatus status;
 
     public static SpecialProduct of(Product product, SpecialProductDto dto) {
         return SpecialProduct.builder()
@@ -51,7 +56,7 @@ public class SpecialProduct extends BaseEntity {
                 .discountRate(dto.getDiscountRate())
                 .startDate(dto.getDiscountStartDate())
                 .endDate(dto.getDiscountEndDate())
-                .deleted(false)  // 신규 생성 시 삭제 플래그 false
+                .status(SpecialProductStatus.UPCOMING)
                 .build();
     }
 
@@ -67,6 +72,7 @@ public class SpecialProduct extends BaseEntity {
                 .discountRate(this.discountRate)
                 .discountStartDate(this.startDate)
                 .discountEndDate(this.endDate)
+                .status(this.status)
                 .build();
     }
 
@@ -74,13 +80,14 @@ public class SpecialProduct extends BaseEntity {
         this.discountRate = dto.getDiscountRate();
         this.startDate = dto.getDiscountStartDate();
         this.endDate  = dto.getDiscountEndDate();
+        this.status = dto.getStatus();
     }
 
     public void delete() {
-        this.deleted = true;
+        this.status = SpecialProductStatus.DELETED;
     }
 
-    public void restore() {
-        this.deleted = false;
+    public void approve() {
+        this.status = SpecialProductStatus.ACTIVE;
     }
 }

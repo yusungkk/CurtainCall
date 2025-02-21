@@ -1,5 +1,6 @@
 package com.backstage.curtaincall.specialProduct.dto;
 
+import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
@@ -32,8 +33,9 @@ public class SpecialProductDto {
     private int discountRate;
     private LocalDate discountStartDate; // 할인 시작일시
     private LocalDate discountEndDate;   // 할인 종료일시
+    private SpecialProductStatus status;
 
     // ProductDetail 정보
-    private LocalDate performanceDate; //해당 공연날짜
+//    private LocalDate performanceDate; //해당 공연날짜
 
 }

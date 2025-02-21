@@ -91,7 +91,7 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
-    // Soft 삭제 & 캐시에서 해당 항목 제거
+    // Soft 삭제 : 캐시에서 해당 항목 제거
     @Transactional
     @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
     public void delete(Long id) {
@@ -100,13 +100,13 @@ public class SpecialProductService {
         sp.delete();
     }
 
-    // 복구& 캐시에 복구된 엔티티 업데이트
+    // 승인: 캐시에 복구된 엔티티 업데이트
     @Transactional
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
-    public SpecialProductDto restore(Long id) {
-        SpecialProduct sp = specialProductRepository.findByIdDeleted(id)
+    public SpecialProductDto approve(Long id) {
+        SpecialProduct sp = specialProductRepository.findByIdUpcoming(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
-        sp.restore();
+        sp.approve();
         return sp.toDto();
     }
 

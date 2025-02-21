@@ -69,9 +69,9 @@ public class SpecialProductController {
         specialProductService.delete(id);
     }
 
-    // 복구
-    @PutMapping("/restore/{id}")
-    public void restore(@PathVariable Long id) {
-        specialProductService.restore(id);
+    // 승인
+    @PutMapping("/approve/{id}")
+    public void approve(@PathVariable Long id) {
+        specialProductService.approve(id);
     }
 }
