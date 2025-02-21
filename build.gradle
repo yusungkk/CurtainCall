@@ -64,6 +64,10 @@ dependencies {
 
 	//웹소켓 추가
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
+	//MongoDb 추가
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
 }
 
 tasks.named('test') {

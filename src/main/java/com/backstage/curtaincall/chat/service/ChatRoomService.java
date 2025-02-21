@@ -1,35 +1,46 @@
 package com.backstage.curtaincall.chat.service;
 
-import com.backstage.curtaincall.chat.dto.ChatRoom;
+import com.backstage.curtaincall.chat.document.ChatRoom;
+import com.backstage.curtaincall.chat.dto.ChatRoomDto;
+import com.backstage.curtaincall.chat.repository.ChatRoomRepository;
+import com.backstage.curtaincall.global.exception.CustomErrorCode;
+import com.backstage.curtaincall.global.exception.CustomException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
+
+import static com.backstage.curtaincall.chat.document.RoomActive.WITHOUT_ADMIN;
 
 @Service
+@RequiredArgsConstructor
 public class ChatRoomService {
 
-    Map<String, ChatRoom> chatRooms = new ConcurrentHashMap<>();
+    private final ChatRoomRepository chatRoomRepository;
 
-    public ChatRoom createChatRoom(String user) {
-        String roomId = UUID.randomUUID().toString();
-        ChatRoom chatRoom = new ChatRoom(roomId, user, null);
-        chatRooms.put(roomId, chatRoom);
-        return chatRoom;
+    public ChatRoomDto createChatRoom(String username) {
+        String roomId = UUID.randomUUID().toString().substring(0, 8);
+        ChatRoom room = ChatRoom.create(roomId, username);
+        chatRoomRepository.save(room);
+        return new ChatRoomDto(roomId, username, room.getAdminName());
     }
 
-    public List<ChatRoom> getAllRooms() {
-        return new ArrayList<>(chatRooms.values());
+    public List<ChatRoomDto> getAllRooms() {
+        return chatRoomRepository.findAll().stream()
+                .map(cr -> new ChatRoomDto(cr.getId(), cr.getUsername(), cr.getAdminName()))
+                .toList();
     }
 
-    public ChatRoom assignAgent(String roomId, String agent) {
-        ChatRoom chatRoom = chatRooms.get(roomId);
-        if (chatRoom != null && chatRoom.getAgent() == null) {
-            chatRoom.setAgent(agent);
+    public ChatRoomDto assignAdmin(String roomId, String adminName) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        if (chatRoom.getRoomActive().equals(WITHOUT_ADMIN)) {
+            chatRoom.enterAdmin(adminName);
+            chatRoomRepository.save(chatRoom);
         }
-        return chatRoom;
+
+        return new ChatRoomDto(chatRoom.getId(), chatRoom.getUsername(), chatRoom.getAdminName());
     }
 }
