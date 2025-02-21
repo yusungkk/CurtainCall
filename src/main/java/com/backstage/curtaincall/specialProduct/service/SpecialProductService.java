@@ -6,7 +6,6 @@ import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
-import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
 import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.repository.ProductRepository;
@@ -108,6 +107,9 @@ public class SpecialProductService {
     public SpecialProductDto approve(Long id) {
         SpecialProduct sp = specialProductRepository.findByIdUpcoming(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+
+        //현재날짜가 할인기간에 포함되는지 확인
+        validateCurrentDate(sp.getStartDate(), sp.getEndDate());
         sp.approve();
         return sp.toDto();
     }
@@ -131,6 +133,7 @@ public class SpecialProductService {
     }
 
     // 매일 자정에 할인 시작 날짜가 오늘인 상품 redis에 생성
+    @Transactional
     public void createStartingSpecialProducts(RedisTemplate<String, Object> redisTemplate) {
         LocalDate today = LocalDate.now();
         List<SpecialProduct> startingProducts = specialProductRepository.findAllStartingSpecialProducts(today);
@@ -140,10 +143,17 @@ public class SpecialProductService {
         redisTemplate.opsForValue().set("specialProduct", dtos);
     }
 
+    public void validateCurrentDate(LocalDate startDate, LocalDate endDate) {
+        LocalDate now = LocalDate.now();
+        if (now.isBefore(startDate) || now.isAfter(endDate)) {
+            throw new CustomException(CustomErrorCode.INVALID_DISCOUNT_DATE);
+        }
+    }
+
     private void validateoverDate(Product product, SpecialProductDto dto) {
         if (product.getStartDate().isAfter(dto.getDiscountStartDate()) ||
                 product.getEndDate().isBefore(dto.getDiscountEndDate())) {
-            throw new CustomException(CustomErrorCode.INVALID_DISCOUNT_PERIOD);
+            throw new CustomException(CustomErrorCode.DISCOUNT_OUT_OF_RANGE);
         }
     }
 

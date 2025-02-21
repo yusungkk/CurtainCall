@@ -35,6 +35,9 @@ public class SpecialProductDto {
     private LocalDate discountEndDate;   // 할인 종료일시
     private SpecialProductStatus status;
 
+    //ProductImage 정보
+
+
     // ProductDetail 정보
 //    private LocalDate performanceDate; //해당 공연날짜
 
