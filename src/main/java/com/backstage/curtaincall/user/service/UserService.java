@@ -83,7 +83,7 @@ public class UserService {
             throw new CustomException(CustomErrorCode.INVALID_PASSWORD);
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
         return new LoginResponse(user.getRole(), token);
     }
