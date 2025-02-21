@@ -1,5 +1,6 @@
 package com.backstage.curtaincall.security;
 
+import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,12 +23,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         String token = null;
         if (request.getCookies() != null) {
             for (var cookie : request.getCookies()) {
-                if ("Authorization".equals(cookie.getName())) {
+                if ("jwt".equals(cookie.getName())) {
                     token = cookie.getValue();
                     break;
                 }
@@ -37,14 +37,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null) {
             try {
                 String email = jwtUtil.getUserEmail(token);
-                UserDetails userDetails = User.withUsername(email).password("").roles("USER").build();
-                UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
+                String role = jwtUtil.getUserRole(token);
+                UserDetails userDetails = User.withUsername(email).password("").roles(role).build();
+                UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } catch (CustomException e) {
                 log.error("JWT Authentication error: {}", e.getMessage());
                 SecurityContextHolder.clearContext();
+                if (e.getCustomErrorCode() == CustomErrorCode.EXPIRED_TOKEN) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.getWriter().write("Token has expired");
+                    return;
+                }
             }
         }
 

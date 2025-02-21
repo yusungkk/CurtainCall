@@ -57,8 +57,6 @@ public class Product extends BaseEntity {
     public void update(ProductRequestDto request) {
         this.productName = request.getProductName();
         this.place = request.getPlace();
-        this.startDate = request.getStartDate();
-        this.endDate = request.getEndDate();
         this.runningTime = request.getRunningTime();
         this.price = request.getPrice();
         this.casting = request.getCasting();
