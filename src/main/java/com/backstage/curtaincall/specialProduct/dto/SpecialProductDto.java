@@ -1,9 +1,10 @@
 package com.backstage.curtaincall.specialProduct.dto;
 
+import com.backstage.curtaincall.product.entity.Dates;
+import com.backstage.curtaincall.product.entity.Time;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,6 +25,11 @@ public class SpecialProductDto {
     private int price;
     private LocalDate startDate;
     private LocalDate endDate;
+    //추가
+    private String place;
+    private int runningTime;
+    private String casting;
+    private String notice;
 
     // SpecialProduct 정보
     private Long specialProductId;
@@ -36,9 +42,11 @@ public class SpecialProductDto {
     private SpecialProductStatus status;
 
     //ProductImage 정보
-
+    private String imageUrl;
 
     // ProductDetail 정보
+//    private Dates dates;
+//    private Time time;
 //    private LocalDate performanceDate; //해당 공연날짜
 
 }
