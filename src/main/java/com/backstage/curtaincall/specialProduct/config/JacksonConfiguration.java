@@ -15,10 +15,7 @@ public class JacksonConfiguration {
     @Bean
     @Primary
     public ObjectMapper objectMapper() {
-<<<<<<< HEAD
-=======
         // Jackson을 이용한 Redis 직렬화 설정
->>>>>>> spcialProduct
         ObjectMapper mapper = new ObjectMapper();
         // JavaTimeModule을 등록합니다.
         mapper.registerModule(new JavaTimeModule());
