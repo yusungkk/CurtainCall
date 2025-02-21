@@ -5,8 +5,8 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class ChatMessage {
+public class ChatRoomDto {
     private String roomId;
-    private String sender;
-    private String content;
+    private String user;
+    private String admin;
 }
