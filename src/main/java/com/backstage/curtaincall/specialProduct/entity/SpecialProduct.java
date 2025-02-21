@@ -90,4 +90,8 @@ public class SpecialProduct extends BaseEntity {
     public void approve() {
         this.status = SpecialProductStatus.ACTIVE;
     }
+
+    public void approveCancel() {
+        this.status = SpecialProductStatus.UPCOMING;
+    }
 }

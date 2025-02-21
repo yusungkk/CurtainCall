@@ -6,6 +6,7 @@ import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
 import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.repository.ProductRepository;
@@ -94,10 +95,11 @@ public class SpecialProductService {
     // Soft 삭제 : 캐시에서 해당 항목 제거
     @Transactional
     @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
-    public void delete(Long id) {
+    public SpecialProductDto delete(Long id) {
         SpecialProduct sp = specialProductRepository.findById(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.delete();
+        return sp.toDto();
     }
 
     // 승인: 캐시에 복구된 엔티티 업데이트
@@ -107,6 +109,17 @@ public class SpecialProductService {
         SpecialProduct sp = specialProductRepository.findByIdUpcoming(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.approve();
+        return sp.toDto();
+    }
+
+    //승인 취소
+    @Transactional
+    @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
+    public SpecialProductDto approveCancel(Long id) {
+        SpecialProduct sp = specialProductRepository.findByIdActive(id)
+                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+
+        sp.approveCancel();// 다시 할인 예정 상태로 변경
         return sp.toDto();
     }
 

@@ -74,4 +74,9 @@ public class SpecialProductController {
     public void approve(@PathVariable Long id) {
         specialProductService.approve(id);
     }
+
+    @PutMapping("/approveCancel/{id}")
+    public void approveCancel(@PathVariable Long id) {
+        specialProductService.approveCancel(id);
+    }
 }

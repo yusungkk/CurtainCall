@@ -30,7 +30,9 @@ public class SpecialProductRepository {
     // 이름 검색 및 페이지네이션을 적용한 전체 조회
     public Page<SpecialProduct> findAll(String keyword, Pageable pageable) {
         StringBuilder jpql = new StringBuilder(
-                "SELECT sp FROM SpecialProduct sp JOIN FETCH sp.product p " +
+                "SELECT sp FROM SpecialProduct sp " +
+                        "JOIN FETCH sp.product p " +
+                        "LEFT JOIN FETCH p.productImage pi " +
                         "WHERE sp.status != :deletedStatus ");
         StringBuilder countJpql = new StringBuilder(
                 "SELECT COUNT(sp) FROM SpecialProduct sp JOIN sp.product p " +
@@ -99,19 +101,30 @@ public class SpecialProductRepository {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp " +
                                 "JOIN FETCH sp.product p " +
-                                "WHERE sp.id = :id AND sp.status != :deletedStatus", SpecialProduct.class)
+                                "WHERE sp.id = :id AND sp.status <> :deleted", SpecialProduct.class)
                 .setParameter("id", id)
-                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                .setParameter("deleted", SpecialProductStatus.DELETED)
                 .getResultStream()
                 .findFirst();
     }
 
+
     public Optional<SpecialProduct> findByIdUpcoming(Long id) {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp " +
-                                "WHERE sp.id = :id AND sp.status = :upcomingStatus", SpecialProduct.class)
+                                "WHERE sp.id = :id AND sp.status = :upcoming", SpecialProduct.class)
                 .setParameter("id", id)
-                .setParameter("upcomingStatus", SpecialProductStatus.UPCOMING)
+                .setParameter("upcoming", SpecialProductStatus.UPCOMING)
+                .getResultStream()
+                .findFirst();
+    }
+
+    public Optional<SpecialProduct> findByIdActive(Long id) {
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp " +
+                                "WHERE sp.id = :id AND sp.status = :active", SpecialProduct.class)
+                .setParameter("id", id)
+                .setParameter("active", SpecialProductStatus.ACTIVE)
                 .getResultStream()
                 .findFirst();
     }
@@ -139,4 +152,6 @@ public class SpecialProductRepository {
                 .setParameter("today", today)
                 .getResultList();
     }
+
+
 }
