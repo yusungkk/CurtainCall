@@ -8,12 +8,14 @@ import jakarta.persistence.TypedQuery;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
 @Repository
+@RequiredArgsConstructor
 public class SpecialProductRepository {
 
     @PersistenceContext
@@ -26,6 +28,18 @@ public class SpecialProductRepository {
                 .setParameter("deletedStatus", SpecialProductStatus.DELETED)
                 .getResultList();
     }
+
+    // 활성 (ACTIVE) 상태의 특가상품 조회
+    public List<SpecialProduct> findAllActive() {
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp JOIN FETCH sp.product p " +
+                                "LEFT JOIN FETCH p.productImage pi " +
+                                "WHERE sp.status = :activeStatus", SpecialProduct.class)
+                .setParameter("activeStatus", SpecialProductStatus.ACTIVE)
+                .getResultList();
+    }
+
+
 
     // 이름 검색 및 페이지네이션을 적용한 전체 조회
     public Page<SpecialProduct> findAll(String keyword, Pageable pageable) {
@@ -66,6 +80,7 @@ public class SpecialProductRepository {
     public List<SpecialProduct> findAllDeleted() {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp JOIN FETCH sp.product p " +
+                                "LEFT JOIN FETCH p.productImage pi " +
                                 "WHERE sp.status = :deletedStatus", SpecialProduct.class)
                 .setParameter("deletedStatus", SpecialProductStatus.DELETED)
                 .getResultList();

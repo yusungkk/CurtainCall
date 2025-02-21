@@ -1,5 +1,6 @@
 package com.backstage.curtaincall.specialProduct.config;
 
+import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -8,6 +9,7 @@ import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
@@ -37,4 +39,20 @@ public class RedisConfig {
         template.afterPropertiesSet();
         return template;
     }
+
+//    @Bean
+//    public RedisTemplate<String, SpecialProduct> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+//        RedisTemplate<String, SpecialProduct> template = new RedisTemplate<>();
+//        template.setConnectionFactory(redisConnectionFactory);
+//
+//        // Key 직렬화
+//        template.setKeySerializer(new StringRedisSerializer());
+//
+//        // Value 직렬화 (JSON 형태로 저장)
+//        Jackson2JsonRedisSerializer<SpecialProduct> serializer = new Jackson2JsonRedisSerializer<>(SpecialProduct.class);
+//        template.setValueSerializer(serializer);
+//
+//        template.afterPropertiesSet();
+//        return template;
+//    }
 }

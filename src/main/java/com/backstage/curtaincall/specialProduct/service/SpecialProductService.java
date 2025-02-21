@@ -6,11 +6,14 @@ import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
 import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.repository.ProductRepository;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
@@ -20,6 +23,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +33,7 @@ public class SpecialProductService {
 
     private final SpecialProductRepository specialProductRepository;
     private final ProductRepository productRepository; // Product 조회용
+//    private final RedisTemplate<String, SpecialProduct> redisTemplate;
 
     // 전체 조회
     public List<SpecialProductDto> findAll(){
@@ -37,6 +42,40 @@ public class SpecialProductService {
                 .map(SpecialProduct::toDto)
                 .toList();
     }
+
+    // Redis에서 캐시된 ACTIVE 특가상품 가져오기
+//    public List<SpecialProductDto> getActiveSpecialProducts() {
+//        ValueOperations<String, SpecialProduct> valueOps = redisTemplate.opsForValue();
+//
+//        // Redis에서 모든 활성화된 특가 상품 키 가져오기
+//        Set<String> keys = redisTemplate.keys("specialProduct:*");
+//
+//        if (keys != null && !keys.isEmpty()) {
+//            List<SpecialProductDto> cachedProducts = keys.stream()
+//                    .map(valueOps::get)
+//                    .filter(product -> product != null)
+//                    .map(SpecialProduct::toDto) // SpecialProduct -> SpecialProductDto 변환
+//                    .toList();
+//
+//            if (!cachedProducts.isEmpty()) {
+//                return cachedProducts; // 캐시에 데이터가 있으면 반환
+//            }
+//        }
+//
+//        // 캐시가 비어 있으면 DB에서 조회
+//        List<SpecialProduct> activeProducts = specialProductRepository.findAllActive();
+//        List<SpecialProductDto> activeProductsDto = activeProducts.stream()
+//                .map(SpecialProduct::toDto)
+//                .toList();
+//
+//        // Redis에 저장 (TTL 24시간 설정)
+//        for (SpecialProduct product : activeProducts) {
+//            valueOps.set("specialProduct:" + product.getId(), product, Duration.ofHours(24));
+//        }
+//
+//        return activeProductsDto;
+//    }
+
 
     // 이름 검색 및 페이지네이션을 적용한 전체 조회
     @Transactional(readOnly = true)
@@ -79,8 +118,6 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
-
-
     // 수정: 캐시 업데이트 반영
     @Transactional
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #dto.specialProductId", cacheManager = "cacheManager")
@@ -116,7 +153,7 @@ public class SpecialProductService {
 
     //승인 취소
     @Transactional
-    @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
+    @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
     public SpecialProductDto approveCancel(Long id) {
         SpecialProduct sp = specialProductRepository.findByIdActive(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));

@@ -5,6 +5,7 @@ import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,20 +24,28 @@ public class SpecialProductController {
 
     private final SpecialProductService specialProductService;
 
+
     // 전체 조회
     @GetMapping
     public List<SpecialProductDto> findAll() {
         return specialProductService.findAll();
     }
 
+    // 메인화면
+    // 캐싱된 특가상품 가져오기
+//    @GetMapping("/active")
+//    public List<SpecialProductDto> getActiveSpecialProducts() {
+//        return specialProductService.getActiveSpecialProducts();
+//    }
+
+    // 관리자화면
     // 페이지네이션과 이름 검색이 적용된 조회 API
     @GetMapping("/search")
-    public ResponseEntity<Page<SpecialProductDto>> getSpecialProducts(
+    public Page<SpecialProductDto> getSpecialProducts(
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Page<SpecialProductDto> response = specialProductService.getSpecialProducts(keyword, page, size);
-        return ResponseEntity.ok(response);
+        return specialProductService.getSpecialProducts(keyword, page, size);
     }
 
     // 삭제 된 것만 전체 조회
