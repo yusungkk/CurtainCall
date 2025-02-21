@@ -67,10 +67,11 @@ public class Product extends BaseEntity {
         this.productImage = image;
     }
 
-    public void setSalesCount(long salesCount) {
-        this.salesCount = salesCount;
-    }
     public void updateCategory(Category category) {
         this.category = category;
+    }
+
+    public void updateSalesCount(long updatedSalesCount) {
+        this.salesCount = updatedSalesCount;
     }
 }

@@ -82,14 +82,15 @@ public class OrderService {
         if(status.equals(Status.CANCELED)){ // 결제를 취소한 경우, 좌석을 다시 선택할 수 있도록 OrderDetail 삭제
             orderDetailRepository.deleteAllByOrder(order);
         }
-        else if (status.equals(Status.COMPLETED)) { // 결제가 완료된 경우, 좌석 수 만큼 상품 판매량 증가
+        else if (status.equals(Status.COMPLETED)) { // 결제가 완료된 경우, 좌석 수 만큼 상품 판매량 증가 & 상품 상세 잔여석 감소
             List<OrderDetail> orderDetails = orderDetailRepository.findAllByOrder(order);
 
             for (OrderDetail orderDetail : orderDetails) {
                 ProductDetail productDetail = orderDetail.getProductDetail();
                 Product product = productDetail.getProduct();
 
-                product.setSalesCount(product.getSalesCount() + 1);
+                productDetail.updateRemain(productDetail.getRemain() - 1);
+                product.updateSalesCount(product.getSalesCount() + 1);
 
                 productRepository.save(product);
             }
