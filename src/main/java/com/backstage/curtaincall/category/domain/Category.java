@@ -31,7 +31,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(name= "categories")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // 🚀 Hibernate 프록시 객체 직렬화 방지
 public class Category extends BaseEntity {
 
     @Id
@@ -47,7 +46,7 @@ public class Category extends BaseEntity {
     private Category parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+//    @JsonIgnore
     @Builder.Default
     private List<Category> children = new ArrayList<>();
 

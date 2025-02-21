@@ -68,9 +68,6 @@ dependencies {
 	//MongoDb 추가
 	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
 
-	//LocalDateTime(createAt) 필드를 직렬화
-	implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
-
 }
 
 tasks.named('test') {
