@@ -83,6 +83,10 @@ public class UserService {
             throw new CustomException(CustomErrorCode.INVALID_PASSWORD);
         }
 
+        if(!user.isActive()) {
+            throw new CustomException(CustomErrorCode.USER_NOT_FOUND);
+        }
+
         String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
         return new LoginResponse(user.getRole(), token);
