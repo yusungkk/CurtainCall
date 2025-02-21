@@ -5,6 +5,7 @@ import com.backstage.curtaincall.category.dto.CategoryDto;
 import com.backstage.curtaincall.global.entity.BaseEntity;
 import com.backstage.curtaincall.product.entity.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,6 +31,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @Table(name= "categories")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"}) // 🚀 Hibernate 프록시 객체 직렬화 방지
 public class Category extends BaseEntity {
 
     @Id
@@ -52,8 +54,9 @@ public class Category extends BaseEntity {
     @Column(name = "is_deleted")
     private boolean deleted = false;
 
-    @OneToMany(mappedBy = "category")
-    private List<Product> products = new ArrayList<>();
+//    @OneToMany(mappedBy = "category")
+//    @JsonIgnore
+//    private List<Product> products = new ArrayList<>();
 
     private Category(String name) {
         this.name = name;

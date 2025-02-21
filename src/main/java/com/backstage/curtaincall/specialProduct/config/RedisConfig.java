@@ -1,6 +1,8 @@
 package com.backstage.curtaincall.specialProduct.config;
 
+import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,12 @@ public class RedisConfig {
     @Value("${spring.data.redis.port}")
     private int port;
 
+    private final ObjectMapper objectMapper;
+
+    // ObjectMapper 주입 받기 (JacksonConfiguration에서 생성된 Bean 사용)
+    public RedisConfig(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
         // Lettuce라는 라이브러리를 활용해 Redis 연결을 관리하는 객체를 생성하고
@@ -27,32 +35,34 @@ public class RedisConfig {
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
 
-    @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-        RedisTemplate<String, Object> template = new RedisTemplate<>();
-        template.setConnectionFactory(redisConnectionFactory);
-
-        // Key와 Value 직렬화 설정
-        template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-
-        template.afterPropertiesSet();
-        return template;
-    }
-
 //    @Bean
-//    public RedisTemplate<String, SpecialProduct> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
-//        RedisTemplate<String, SpecialProduct> template = new RedisTemplate<>();
+//    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+//        RedisTemplate<String, Object> template = new RedisTemplate<>();
 //        template.setConnectionFactory(redisConnectionFactory);
 //
-//        // Key 직렬화
+//        // Key와 Value 직렬화 설정
 //        template.setKeySerializer(new StringRedisSerializer());
-//
-//        // Value 직렬화 (JSON 형태로 저장)
-//        Jackson2JsonRedisSerializer<SpecialProduct> serializer = new Jackson2JsonRedisSerializer<>(SpecialProduct.class);
-//        template.setValueSerializer(serializer);
+//        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
 //
 //        template.afterPropertiesSet();
 //        return template;
 //    }
+
+    @Bean
+    public RedisTemplate<String, SpecialProductDto> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, SpecialProductDto> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+
+        // ✅ Key 직렬화
+        template.setKeySerializer(new StringRedisSerializer());
+
+        // ✅ Value 직렬화 (ObjectMapper 적용)
+        Jackson2JsonRedisSerializer<SpecialProductDto> serializer = new Jackson2JsonRedisSerializer<>(SpecialProductDto.class);
+        serializer.setObjectMapper(objectMapper);  // ✅ 기존 ObjectMapper 사용
+
+        template.setValueSerializer(serializer);
+        template.afterPropertiesSet();
+
+        return template;
+    }
 }

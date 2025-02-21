@@ -3,6 +3,7 @@ package com.backstage.curtaincall.product.entity;
 import com.backstage.curtaincall.category.domain.Category;
 import com.backstage.curtaincall.global.entity.BaseEntity;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -48,9 +49,11 @@ public class Product extends BaseEntity {
 
     private Long salesCount;    // 총 판매량
 
+    @JsonIgnore
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true) // 부모 삭제시 자동 삭제 + 관계 끊김
     private List<ProductDetail> productDetails = new ArrayList<>();
 
+    @JsonIgnore
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProductImage productImage;
 

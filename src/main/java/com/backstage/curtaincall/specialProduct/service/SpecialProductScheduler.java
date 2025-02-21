@@ -12,14 +12,14 @@ import org.springframework.stereotype.Component;
 public class SpecialProductScheduler {
 
     private final SpecialProductService specialProductService;
-    private final RedisTemplate<String, Object> redisTemplate;
+//    private final RedisTemplate<String, Object> redisTemplate;
 
 
     // 매일 자정에 두 작업을 순차적으로 실행 (각각 별도의 트랜잭션)
     @Scheduled(cron = "0 06 18 * * ?")
     public void processSpecialProducts() {
         specialProductService.deleteExpiredSpecialProducts();
-        specialProductService.createStartingSpecialProducts(redisTemplate);
+        //specialProductService.createStartingSpecialProducts(redisTemplate);
     }
 }
 

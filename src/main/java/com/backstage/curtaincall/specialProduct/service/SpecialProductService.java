@@ -33,7 +33,7 @@ public class SpecialProductService {
 
     private final SpecialProductRepository specialProductRepository;
     private final ProductRepository productRepository; // Product 조회용
-//    private final RedisTemplate<String, SpecialProduct> redisTemplate;
+    private final RedisTemplate<String, SpecialProductDto> redisTemplate;
 
     // 전체 조회
     public List<SpecialProductDto> findAll(){
@@ -44,37 +44,36 @@ public class SpecialProductService {
     }
 
     // Redis에서 캐시된 ACTIVE 특가상품 가져오기
-//    public List<SpecialProductDto> getActiveSpecialProducts() {
-//        ValueOperations<String, SpecialProduct> valueOps = redisTemplate.opsForValue();
-//
-//        // Redis에서 모든 활성화된 특가 상품 키 가져오기
-//        Set<String> keys = redisTemplate.keys("specialProduct:*");
-//
-//        if (keys != null && !keys.isEmpty()) {
-//            List<SpecialProductDto> cachedProducts = keys.stream()
-//                    .map(valueOps::get)
-//                    .filter(product -> product != null)
-//                    .map(SpecialProduct::toDto) // SpecialProduct -> SpecialProductDto 변환
-//                    .toList();
-//
-//            if (!cachedProducts.isEmpty()) {
-//                return cachedProducts; // 캐시에 데이터가 있으면 반환
-//            }
-//        }
-//
-//        // 캐시가 비어 있으면 DB에서 조회
-//        List<SpecialProduct> activeProducts = specialProductRepository.findAllActive();
-//        List<SpecialProductDto> activeProductsDto = activeProducts.stream()
-//                .map(SpecialProduct::toDto)
-//                .toList();
-//
-//        // Redis에 저장 (TTL 24시간 설정)
-//        for (SpecialProduct product : activeProducts) {
-//            valueOps.set("specialProduct:" + product.getId(), product, Duration.ofHours(24));
-//        }
-//
-//        return activeProductsDto;
-//    }
+    public List<SpecialProductDto> getActiveSpecialProducts() {
+        ValueOperations<String, SpecialProductDto> valueOps = redisTemplate.opsForValue();
+
+        // Redis에서 모든 활성화된 특가 상품 키 가져오기
+        Set<String> keys = redisTemplate.keys("specialProductCache::specialProduct:*");
+
+        if (keys != null && !keys.isEmpty()) {
+            List<SpecialProductDto> cachedProducts = keys.stream()
+                    .map(valueOps::get)
+                    .toList();
+
+            if (!cachedProducts.isEmpty()) {
+                return cachedProducts; // 캐시에 데이터가 있으면 반환
+            }
+        }
+
+        // 캐시가 비어 있으면 DB에서 조회
+        List<SpecialProduct> activeProducts = specialProductRepository.findAllActive();
+        List<SpecialProductDto> activeProductsDto = activeProducts.stream()
+                .map(SpecialProduct::toDto)
+                .toList();
+
+        // Redis에 저장 (TTL 24시간 설정)
+        for (SpecialProductDto dto : activeProductsDto) {
+            valueOps.set("specialProductCache::specialProduct::" + dto.getSpecialProductId(), dto, Duration.ofHours(24));
+        }
+
+
+        return activeProductsDto;
+    }
 
 
     // 이름 검색 및 페이지네이션을 적용한 전체 조회
@@ -170,15 +169,15 @@ public class SpecialProductService {
     }
 
     // 매일 자정에 할인 시작 날짜가 오늘인 상품 redis에 생성
-    @Transactional
-    public void createStartingSpecialProducts(RedisTemplate<String, Object> redisTemplate) {
-        LocalDate today = LocalDate.now();
-        List<SpecialProduct> startingProducts = specialProductRepository.findAllStartingSpecialProducts(today);
-        List<SpecialProductDto> dtos = startingProducts.stream()
-                .map(SpecialProduct::toDto)
-                .collect(Collectors.toList());
-        redisTemplate.opsForValue().set("specialProduct", dtos);
-    }
+//    @Transactional
+//    public void createStartingSpecialProducts(RedisTemplate<String, Object> redisTemplate) {
+//        LocalDate today = LocalDate.now();
+//        List<SpecialProduct> startingProducts = specialProductRepository.findAllStartingSpecialProducts(today);
+//        List<SpecialProductDto> dtos = startingProducts.stream()
+//                .map(SpecialProduct::toDto)
+//                .collect(Collectors.toList());
+//        redisTemplate.opsForValue().set("specialProduct", dtos);
+//    }
 
     public void validateCurrentDate(LocalDate startDate, LocalDate endDate) {
         LocalDate now = LocalDate.now();
