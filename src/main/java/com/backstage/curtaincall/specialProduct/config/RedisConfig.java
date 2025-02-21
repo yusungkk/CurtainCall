@@ -1,10 +1,16 @@
 package com.backstage.curtaincall.specialProduct.config;
 
+import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @Configuration
 public class RedisConfig {
@@ -20,4 +26,33 @@ public class RedisConfig {
         // Redis 서버에 대한 정보(host, port)를 설정한다.
         return new LettuceConnectionFactory(new RedisStandaloneConfiguration(host, port));
     }
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+        RedisTemplate<String, Object> template = new RedisTemplate<>();
+        template.setConnectionFactory(redisConnectionFactory);
+
+        // Key와 Value 직렬화 설정
+        template.setKeySerializer(new StringRedisSerializer());
+        template.setValueSerializer(new GenericJackson2JsonRedisSerializer());
+
+        template.afterPropertiesSet();
+        return template;
+    }
+
+//    @Bean
+//    public RedisTemplate<String, SpecialProduct> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+//        RedisTemplate<String, SpecialProduct> template = new RedisTemplate<>();
+//        template.setConnectionFactory(redisConnectionFactory);
+//
+//        // Key 직렬화
+//        template.setKeySerializer(new StringRedisSerializer());
+//
+//        // Value 직렬화 (JSON 형태로 저장)
+//        Jackson2JsonRedisSerializer<SpecialProduct> serializer = new Jackson2JsonRedisSerializer<>(SpecialProduct.class);
+//        template.setValueSerializer(serializer);
+//
+//        template.afterPropertiesSet();
+//        return template;
+//    }
 }

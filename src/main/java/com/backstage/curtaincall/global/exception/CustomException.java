@@ -1,6 +1,5 @@
 package com.backstage.curtaincall.global.exception;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 @Getter
