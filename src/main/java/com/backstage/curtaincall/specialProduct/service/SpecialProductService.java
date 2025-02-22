@@ -2,7 +2,6 @@ package com.backstage.curtaincall.specialProduct.service;
 
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.*;
 
-import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
@@ -101,13 +100,11 @@ public class SpecialProductService {
     // 생성
     @Transactional
     public SpecialProductDto save(SpecialProductDto dto) {
-        // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
-        validateOverDate(dto);
-        //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
-        validateOverLappingDate(dto);
+        // 통합 검증 메서드
+        validate(dto);
 
         Product product = productRepository.findById(dto.getProductId())
-                .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(PRODUCT_NOT_FOUND));
 
         SpecialProduct sp = SpecialProduct.of(product, dto);
         specialProductRepository.save(sp);
@@ -120,8 +117,7 @@ public class SpecialProductService {
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #dto.specialProductId", cacheManager = "cacheManager")
     public SpecialProductDto update(SpecialProductDto dto) {
 
-        validateOverDate(dto);
-        validateOverLappingDate(dto);
+        validate(dto);
 
         SpecialProduct sp = specialProductRepository.findById(dto.getSpecialProductId())
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
@@ -181,10 +177,20 @@ public class SpecialProductService {
 //        redisTemplate.opsForValue().set("specialProduct", dtos);
 //    }
 
+
+    private void validate(SpecialProductDto dto) {
+        // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
+        validateOverDate(dto);
+        //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
+        validateOverLappingDate(dto);
+        // 할인 종료일이 할인 시작일보다 이전이면 오류발생
+        validateEndDateBeforeStart(dto);
+    }
+
     public void validateCurrentDate(LocalDate startDate, LocalDate endDate) {
         LocalDate now = LocalDate.now();
         if (now.isBefore(startDate) || now.isAfter(endDate)) {
-            throw new CustomException(CustomErrorCode.INVALID_DISCOUNT_DATE);
+            throw new CustomException(DISCOUNT_PERIOD_NOT_IN_CURRENT_DATE);
         }
     }
 
@@ -192,7 +198,7 @@ public class SpecialProductService {
     private void validateOverDate(SpecialProductDto dto) {
         if (dto.getStartDate().isAfter(dto.getDiscountStartDate()) ||
                 dto.getEndDate().isBefore(dto.getDiscountEndDate())) {
-            throw new CustomException(CustomErrorCode.DISCOUNT_OUT_OF_RANGE);
+            throw new CustomException(DISCOUNT_PERIOD_OUT_OF_PRODUCT_RANGE);
         }
     }
 
@@ -200,7 +206,13 @@ public class SpecialProductService {
         List<SpecialProduct> overlappingProducts = specialProductRepository.findAllOverlappingDates(
                 dto.getProductId(), dto.getSpecialProductId(), dto.getDiscountStartDate(), dto.getDiscountEndDate());
         if (!overlappingProducts.isEmpty()) {
-            throw new CustomException(CustomErrorCode.OVERLAPPING_DISCOUNT_PERIOD);
+            throw new CustomException(OVERLAPPING_SPECIAL_PRODUCT_DISCOUNT);
+        }
+    }
+
+    private void validateEndDateBeforeStart(SpecialProductDto dto) {
+        if (dto.getDiscountEndDate().isBefore(dto.getDiscountStartDate())) {
+            throw new CustomException(DISCOUNT_END_DATE_BEFORE_START);
         }
     }
 }
