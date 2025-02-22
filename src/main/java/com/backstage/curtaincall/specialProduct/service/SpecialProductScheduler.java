@@ -1,6 +1,7 @@
 package com.backstage.curtaincall.specialProduct.service;
 
 
+import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -11,15 +12,17 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class SpecialProductScheduler {
 
-    private final SpecialProductService specialProductService;
-//    private final RedisTemplate<String, Object> redisTemplate;
-
+    private final SchedulerService schedulerService;
 
     // 매일 자정에 두 작업을 순차적으로 실행 (각각 별도의 트랜잭션)
-    @Scheduled(cron = "0 06 18 * * ?")
+    @Scheduled(cron = "00 34 20 * * ?")
     public void processSpecialProducts() {
-        specialProductService.deleteExpiredSpecialProducts();
-        //specialProductService.createStartingSpecialProducts(redisTemplate);
+
+        // 매일 해당 시간에 할인 종료 날짜가 오늘 이전인 상품 DB와 redis에서 삭제
+        schedulerService.deleteExpiredSpecialProducts();
+
+        // 매일 해당 시간에 할인 시작 날짜가 오늘인 상품 DB와 redis에 생성
+        schedulerService.approveStartingSpecialProducts();
     }
 }
 

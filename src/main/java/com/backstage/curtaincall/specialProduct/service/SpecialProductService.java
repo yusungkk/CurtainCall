@@ -1,18 +1,25 @@
 package com.backstage.curtaincall.specialProduct.service;
 
-import static com.backstage.curtaincall.global.exception.CustomErrorCode.*;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.ALREADY_ACTIVE_SPECIAL_PRODUCT_EXISTS;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUNT_END_DATE_BEFORE_START;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUNT_PERIOD_EXPIRED;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUNT_PERIOD_OUT_OF_PRODUCT_RANGE;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.OVERLAPPING_SPECIAL_PRODUCT_DISCOUNT;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.PRODUCT_NOT_FOUND;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.SPECIAL_PRODUCT_NOT_FOUND;
 
 import com.backstage.curtaincall.global.exception.CustomException;
+import com.backstage.curtaincall.product.entity.Product;
+import com.backstage.curtaincall.product.repository.ProductRepository;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
-import com.backstage.curtaincall.product.entity.Product;
-import com.backstage.curtaincall.product.repository.ProductRepository;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -25,6 +32,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class SpecialProductService {
 
@@ -65,7 +73,7 @@ public class SpecialProductService {
 
         // Redis에 저장 (TTL 24시간 설정)
         for (SpecialProductDto dto : activeProductsDto) {
-            valueOps.set("specialProductCache::specialProduct::" + dto.getSpecialProductId(), dto, Duration.ofHours(24));
+            valueOps.set("specialProductCache::specialProduct:" + dto.getSpecialProductId(), dto, Duration.ofHours(24));
         }
 
 
@@ -142,11 +150,24 @@ public class SpecialProductService {
         SpecialProduct sp = specialProductRepository.findByIdUpcoming(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
 
+        // 이미 같은 Product에 ACTIVE 상태의 특가 상품이 있는지 확인
+        validateAlreadyActiveProduct(sp.getProduct().getProductId());
+        
         // 할인 종료일이 이미 지난 경우 예외 발생
         validateDiscountExpired(sp.getEndDate());
         sp.approve();
         return sp.toDto();
     }
+
+    private void validateAlreadyActiveProduct(Long productId) {
+        boolean isAlreadyActive = specialProductRepository.existsByProductIdAndStatus(
+                productId);
+
+        if (isAlreadyActive) {
+            throw new CustomException(ALREADY_ACTIVE_SPECIAL_PRODUCT_EXISTS);
+        }
+    }
+
 
     //승인 취소
     @Transactional
@@ -158,24 +179,6 @@ public class SpecialProductService {
         sp.approveCancel();// 다시 할인 예정 상태로 변경
         return sp.toDto();
     }
-
-    // 매일 자정에 할인 종료 날짜가 오늘 이전인 상품 삭제(아직 삭제되지 않은 경우)
-    @Transactional
-    public void deleteExpiredSpecialProducts() {
-        LocalDate today = LocalDate.now();
-        specialProductRepository.deleteExpiredSpecialProducts(today);
-    }
-
-    // 매일 자정에 할인 시작 날짜가 오늘인 상품 redis에 생성
-//    @Transactional
-//    public void createStartingSpecialProducts(RedisTemplate<String, Object> redisTemplate) {
-//        LocalDate today = LocalDate.now();
-//        List<SpecialProduct> startingProducts = specialProductRepository.findAllStartingSpecialProducts(today);
-//        List<SpecialProductDto> dtos = startingProducts.stream()
-//                .map(SpecialProduct::toDto)
-//                .collect(Collectors.toList());
-//        redisTemplate.opsForValue().set("specialProduct", dtos);
-//    }
 
 
     private void validate(SpecialProductDto dto) {

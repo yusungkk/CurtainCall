@@ -151,15 +151,15 @@ public class SpecialProductRepository {
     }
 
     // 할인 종료 날짜가 오늘 이전인 상품을 자동으로 만료 처리 (DELETED 상태로 변경)
-    public void deleteExpiredSpecialProducts(LocalDate today) {
-        int updatedCount = em.createQuery(
-                        "UPDATE SpecialProduct sp SET sp.status = :deletedStatus " +
-                                "WHERE sp.endDate < :today AND sp.status != :deletedStatus")
-                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
-                .setParameter("today", today)
-                .executeUpdate();
-        em.clear();
-    }
+//    public void deleteExpiredSpecialProducts(LocalDate today) {
+//        int updatedCount = em.createQuery(
+//                        "UPDATE SpecialProduct sp SET sp.status = :deletedStatus " +
+//                                "WHERE sp.endDate < :today AND sp.status != :deletedStatus")
+//                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+//                .setParameter("today", today)
+//                .executeUpdate();
+//        em.clear();
+//    }
 
     // 할인 시작 날짜가 오늘인 상품 조회
     public List<SpecialProduct> findAllStartingSpecialProducts(LocalDate today) {
@@ -171,4 +171,26 @@ public class SpecialProductRepository {
     }
 
 
+    public boolean existsByProductIdAndStatus(Long productId) {
+        return em.createQuery(
+                        "SELECT CASE WHEN EXISTS (" +
+                                "    SELECT 1 FROM SpecialProduct sp " +
+                                "    WHERE sp.product.id = :productId " +
+                                "    AND sp.status = :active" +
+                                ") THEN true ELSE false END FROM SpecialProduct sp",
+                        Boolean.class)
+                .setParameter("productId", productId)
+                .setParameter("active", SpecialProductStatus.ACTIVE)
+                .getSingleResult();
+    }
+
+
+    public List<Long> findExpiredSpecialProductIds(LocalDate today) {
+        return em.createQuery(
+                        "SELECT sp.id FROM SpecialProduct sp " +
+                                "WHERE sp.endDate < :today AND sp.status != :deletedStatus", Long.class)
+                .setParameter("today", today)
+                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                .getResultList();
+    }
 }
