@@ -8,10 +8,14 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum CustomErrorCode {
 
+    // 상품 관련
     PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 상품이 없습니다."),
-    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 주문이 없습니다."),
     EMPTY_IMAGE(HttpStatus.BAD_REQUEST, "이미지는 필수입니다."),
     FAIL_IMAGE_UPLOAD(HttpStatus.INTERNAL_SERVER_ERROR, "파일 업로드 중 오류가 발생했습니다."),
+    // 주문 관련
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 주문이 없습니다."),
+    // 결제 관련
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "주문에 해당하는 결제 정보를 찾을 수 없습니다."),
 
     FAQ_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 FAQ가 없습니다."),
     FAQ_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 타입이 없습니다."),
