@@ -43,6 +43,7 @@
             OVERLAPPING_SPECIAL_PRODUCT_DISCOUNT(HttpStatus.BAD_REQUEST, "동일한 상품에 중복된 할인 기간이 존재합니다."),
             DISCOUNT_PERIOD_EXPIRED(HttpStatus.BAD_REQUEST, "할인 종료일이 이미 지났습니다."),
             DISCOUNT_END_DATE_BEFORE_START(HttpStatus.BAD_REQUEST,"할인 종료일은 할인 시작일보다 이후여야 합니다."),
+            ALREADY_ACTIVE_SPECIAL_PRODUCT_EXISTS(HttpStatus.BAD_REQUEST,"해당 상품은 이미 할인중입니다."),
 
 
             // 추가적인 글로벌 에러 코드
