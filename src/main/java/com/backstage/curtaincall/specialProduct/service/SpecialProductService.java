@@ -6,7 +6,6 @@ import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
-import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
 import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.repository.ProductRepository;
@@ -14,7 +13,6 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
@@ -103,24 +101,28 @@ public class SpecialProductService {
     // 생성
     @Transactional
     public SpecialProductDto save(SpecialProductDto dto) {
-        // 연관된 상품(Product) 조회
+        // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
+        validateOverDate(dto);
+        //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
+        validateOverLappingDate(dto);
+
         Product product = productRepository.findById(dto.getProductId())
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
-
-        // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
-        validateoverDate(product, dto);
-        //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
-        validateOverLappingDate(product, dto);
 
         SpecialProduct sp = SpecialProduct.of(product, dto);
         specialProductRepository.save(sp);
         return sp.toDto();
     }
 
+
     // 수정: 캐시 업데이트 반영
     @Transactional
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #dto.specialProductId", cacheManager = "cacheManager")
     public SpecialProductDto update(SpecialProductDto dto) {
+
+        validateOverDate(dto);
+        validateOverLappingDate(dto);
+
         SpecialProduct sp = specialProductRepository.findById(dto.getSpecialProductId())
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.update(dto);
@@ -186,16 +188,17 @@ public class SpecialProductService {
         }
     }
 
-    private void validateoverDate(Product product, SpecialProductDto dto) {
-        if (product.getStartDate().isAfter(dto.getDiscountStartDate()) ||
-                product.getEndDate().isBefore(dto.getDiscountEndDate())) {
+
+    private void validateOverDate(SpecialProductDto dto) {
+        if (dto.getStartDate().isAfter(dto.getDiscountStartDate()) ||
+                dto.getEndDate().isBefore(dto.getDiscountEndDate())) {
             throw new CustomException(CustomErrorCode.DISCOUNT_OUT_OF_RANGE);
         }
     }
 
-    private void validateOverLappingDate(Product product, SpecialProductDto dto) {
+    private void validateOverLappingDate(SpecialProductDto dto) {
         List<SpecialProduct> overlappingProducts = specialProductRepository.findAllOverlappingDates(
-                product.getProductId(), dto.getDiscountStartDate(), dto.getDiscountEndDate());
+                dto.getProductId(), dto.getSpecialProductId(), dto.getDiscountStartDate(), dto.getDiscountEndDate());
         if (!overlappingProducts.isEmpty()) {
             throw new CustomException(CustomErrorCode.OVERLAPPING_DISCOUNT_PERIOD);
         }

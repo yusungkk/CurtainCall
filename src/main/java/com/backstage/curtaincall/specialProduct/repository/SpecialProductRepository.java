@@ -96,16 +96,18 @@ public class SpecialProductRepository {
                 .findFirst();
     }
 
-    public List<SpecialProduct> findAllOverlappingDates(Long productId, LocalDate newStartDate, LocalDate newEndDate) {
+    public List<SpecialProduct> findAllOverlappingDates(Long productId, Long excludeId, LocalDate newStartDate, LocalDate newEndDate) {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp " +
                                 "WHERE sp.product.id = :productId " +
                                 "AND sp.status != :deletedStatus " +
+                                "AND (:excludeId IS NULL OR sp.id <> :excludeId) " +
                                 "AND ((sp.startDate BETWEEN :newStartDate AND :newEndDate) " +
                                 "OR (sp.endDate BETWEEN :newStartDate AND :newEndDate) " +
                                 "OR (sp.startDate <= :newStartDate AND sp.endDate >= :newEndDate) " +
                                 "OR (sp.startDate >= :newStartDate AND sp.endDate <= :newEndDate))", SpecialProduct.class)
                 .setParameter("productId", productId)
+                .setParameter("excludeId", excludeId)
                 .setParameter("newStartDate", newStartDate)
                 .setParameter("newEndDate", newEndDate)
                 .setParameter("deletedStatus", SpecialProductStatus.DELETED)

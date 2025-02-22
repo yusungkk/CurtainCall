@@ -53,12 +53,12 @@ public class RedisConfig {
         RedisTemplate<String, SpecialProductDto> template = new RedisTemplate<>();
         template.setConnectionFactory(redisConnectionFactory);
 
-        // ✅ Key 직렬화
+        // Key 직렬화
         template.setKeySerializer(new StringRedisSerializer());
 
-        // ✅ Value 직렬화 (ObjectMapper 적용)
+        // Value 직렬화 (ObjectMapper 적용)
         Jackson2JsonRedisSerializer<SpecialProductDto> serializer = new Jackson2JsonRedisSerializer<>(SpecialProductDto.class);
-        serializer.setObjectMapper(objectMapper);  // ✅ 기존 ObjectMapper 사용
+        serializer.setObjectMapper(objectMapper);  // 기존 ObjectMapper 사용
 
         template.setValueSerializer(serializer);
         template.afterPropertiesSet();
