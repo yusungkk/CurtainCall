@@ -2,7 +2,6 @@ package com.backstage.curtaincall.specialProduct.service;
 
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.*;
 
-import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
@@ -144,7 +143,7 @@ public class SpecialProductService {
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
 
         // 할인 종료일이 이미 지난 경우 예외 발생
-        validateDiscountNotExpired(sp.getEndDate());
+        validateDiscountExpired(sp.getEndDate());
         sp.approve();
         return sp.toDto();
     }
@@ -188,7 +187,7 @@ public class SpecialProductService {
         validateEndDateBeforeStart(dto);
     }
 
-    private void validateDiscountNotExpired(LocalDate discountEndDate) {
+    private void validateDiscountExpired(LocalDate discountEndDate) {
         if (LocalDate.now().isAfter(discountEndDate)) {
             throw new CustomException(DISCOUNT_PERIOD_EXPIRED);
         }
