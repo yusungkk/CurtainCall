@@ -32,7 +32,8 @@ public class ProductResponseDto {
 
     // SpecialProduct 정보
     private int discountRate;
-
+    private LocalDate discountStartDate;
+    private LocalDate discountEndDate;
 
     public static ProductResponseDto fromEntity(Product product) {
         return ProductResponseDto.builder()
@@ -59,6 +60,12 @@ public class ProductResponseDto {
     }
 
     public static ProductResponseDto of(Product product) {
+
+        Optional<SpecialProduct> activeSpecialProduct = product.getSpecialProducts().stream()
+                                                               .filter(sp -> sp.getStatus() == SpecialProductStatus.ACTIVE)
+                                                               .findFirst();
+
+
         return ProductResponseDto.builder()
                 .productId(product.getProductId())
                 .category(CategoryDto.fromEntity(product.getCategory()))
@@ -79,13 +86,10 @@ public class ProductResponseDto {
                                 .map(ProductDetailResponseDto::fromEntity)
                                 .collect(Collectors.toList())
                 )
-                .discountRate(
-                        product.getSpecialProducts().stream()
-                                .filter(sp -> sp.getStatus() == SpecialProductStatus.ACTIVE) // ACTIVE 상태인 할인 정보만
-                                .findFirst()
-                                .map(SpecialProduct::getDiscountRate)
-                                .orElse(0)
-                )
+                .discountRate(activeSpecialProduct.map(SpecialProduct::getDiscountRate).orElse(0))
+                .discountStartDate(activeSpecialProduct.map(SpecialProduct::getStartDate).orElse(null))
+                .discountEndDate(activeSpecialProduct.map(SpecialProduct::getEndDate).orElse(null))
+
                 .build();
     }
 }
