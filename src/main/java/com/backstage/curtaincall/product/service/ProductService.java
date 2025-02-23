@@ -50,13 +50,23 @@ public class ProductService {
                 .map(ProductResponseDto::fromEntity);
     }
 
+//    @Transactional(readOnly = true)
+//    public ProductResponseDto getProduct(Long id) {
+//        Optional<Product> optionalProduct = productRepository.findById(id);
+//        Product findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+//
+//        return ProductResponseDto.fromEntity(findProduct);
+//    }
+
+    //상품조회시 연관된 데이터 전부 fetch join하여 N+1문제 해결
     @Transactional(readOnly = true)
     public ProductResponseDto getProduct(Long id) {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        Product findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+        Product product = productRepository.findProductWithAll(id)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
-        return ProductResponseDto.fromEntity(findProduct);
+        return ProductResponseDto.of(product);
     }
+
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> searchProductsByProductName(String keyword, int page, int size, String sortBy, String direction) {

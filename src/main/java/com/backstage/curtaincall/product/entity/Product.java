@@ -3,7 +3,10 @@ package com.backstage.curtaincall.product.entity;
 import com.backstage.curtaincall.category.domain.Category;
 import com.backstage.curtaincall.global.entity.BaseEntity;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -53,6 +56,10 @@ public class Product extends BaseEntity {
 
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProductImage productImage;
+
+    //특가상품
+    @OneToMany(mappedBy = "product")
+    private Set<SpecialProduct> specialProducts = new HashSet<>();
 
     public void update(ProductRequestDto request) {
         this.productName = request.getProductName();
