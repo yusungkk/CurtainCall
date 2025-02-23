@@ -221,13 +221,13 @@ public class ProductService {
         //특가 상품 변경
         List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
 
-        // 각 SpecialProduct 업데이트
+        // 연관된 SpecialProduct 변경
         for (SpecialProduct sp : specialProducts) {
             if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
-                // 캐시 반영하여 업데이트
+                // 캐시 반영하여 변경
                 specialProductService.update(sp.toUpdatedDto(product));
             } else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
-                // 캐시를 조회하지 않고 업데이트
+                // 캐시를 조회하지 않고 변경
                 specialProductService.updateNotCache(sp.toUpdatedDto(product));
             }
         }

@@ -126,7 +126,7 @@ public class SpecialProductService {
     }
 
 
-    // 수정: 캐시 업데이트 반영
+    // 수정: 캐시 반영 O
     @Transactional
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #dto.specialProductId", cacheManager = "cacheManager")
     public SpecialProductDto update(SpecialProductDto dto) {
@@ -139,6 +139,7 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
+    // 수정: 캐시 업데이트 반영 X
     @Transactional
     public void updateNotCache(SpecialProductDto dto) {
         validate(dto);
@@ -150,7 +151,7 @@ public class SpecialProductService {
     }
 
 
-    // Soft 삭제 : 캐시에서 해당 항목 제거
+    // Soft 삭제 : 캐시 반영 O
     @Transactional
     @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
     public SpecialProductDto delete(Long id) {
@@ -160,6 +161,7 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
+    // Soft 삭제 : 캐시 반영 X
     @Transactional
     public void deleteNotCache(Long id) {
         SpecialProduct sp = specialProductRepository.findById(id)
