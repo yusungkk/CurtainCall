@@ -105,6 +105,12 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
+    //상품id와 관련된 모든 특가상품 가져오기
+    public List<SpecialProduct> findAllByProductId(Long productId){
+        return specialProductRepository.findAllByProductId(productId);
+    }
+
+
     // 생성
     @Transactional
     public SpecialProductDto save(SpecialProductDto dto) {

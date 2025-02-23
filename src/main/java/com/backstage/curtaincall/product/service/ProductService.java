@@ -16,6 +16,8 @@ import com.backstage.curtaincall.product.entity.ProductImage;
 import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -41,6 +43,7 @@ public class ProductService {
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
     private final CategoryRepository categoryRepository;
+    private final SpecialProductService specialProductService;
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
@@ -221,6 +224,13 @@ public class ProductService {
         // Product 조회
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+
+        // 연관된 SpecialProduct 삭제
+        List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
+        for (SpecialProduct sp : specialProducts) {
+            specialProductService.delete(sp.getId());
+        }
+
 
         // S3 및 DB에서 이미지 삭제
         ProductImage productImage = product.getProductImage();

@@ -96,6 +96,15 @@ public class SpecialProductRepository {
                 .findFirst();
     }
 
+    public List<SpecialProduct> findAllByProductId(Long productId){
+        return em.createQuery(
+                        "SELECT sp FROM SpecialProduct sp " +
+                                "WHERE sp.product.productId = :productId AND sp.status != :deletedStaus", SpecialProduct.class)
+                .setParameter("productId", productId)
+                .setParameter("deletedStaus", SpecialProductStatus.DELETED)
+                .getResultList();
+    }
+
     public List<SpecialProduct> findAllOverlappingDates(Long productId, Long excludeId, LocalDate newStartDate, LocalDate newEndDate) {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp " +
