@@ -16,6 +16,8 @@ public enum CustomErrorCode {
     ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 주문이 없습니다."),
     // 결제 관련
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "주문에 해당하는 결제 정보를 찾을 수 없습니다."),
+    PAYMENT_CANCEL_FAIL(HttpStatus.BAD_REQUEST, "결제 취소에 실패했습니다."),
+    IAM_PORT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "아이엠 포트 요청 중 오류가 발생했습니다"),
 
     FAQ_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 FAQ가 없습니다."),
     FAQ_TYPE_NOT_FOUND(HttpStatus.NOT_FOUND, "일치하는 타입이 없습니다."),

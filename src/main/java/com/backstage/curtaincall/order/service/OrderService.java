@@ -10,6 +10,7 @@ import com.backstage.curtaincall.order.repository.OrderDetailRepository;
 import com.backstage.curtaincall.order.repository.OrderRepository;
 import com.backstage.curtaincall.payment.entity.Payment;
 import com.backstage.curtaincall.payment.repository.PaymentRepository;
+import com.backstage.curtaincall.payment.service.PaymentService;
 import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.entity.ProductDetail;
 import com.backstage.curtaincall.product.entity.Time;
@@ -27,6 +28,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.backstage.curtaincall.order.entity.Status.*;
+
 @Service
 @RequiredArgsConstructor
 public class OrderService {
@@ -36,6 +39,7 @@ public class OrderService {
     private final ProductDetailRepository productDetailRepository;
     private final ProductRepository productRepository;
     private final PaymentRepository paymentRepository;
+    private final PaymentService paymentService;
 
     // 특정 공연 일정(productDetailId)의 예약된 좌석 조회
     @Transactional(readOnly = true)
@@ -89,7 +93,8 @@ public class OrderService {
         List<Order> findOrders = orderRepository.findByUser(findUser);
         if (!findOrders.isEmpty()) {
             for (Order order : findOrders) {
-                if (order.getStatus().equals(Status.CANCELED) || order.getStatus().equals(Status.PENDING)) {
+                Status status = order.getStatus();
+                if (status.equals(CANCELED) || status.equals(PENDING) || status.equals(REFUNDED)) {
                     continue;
                 }
                 // 주문의 주문 상세
@@ -152,13 +157,13 @@ public class OrderService {
     public void updateOrderStatus(Long orderId, Status status) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.ORDER_NOT_FOUND));
-        order.setStatus(status);
+        order.updateStatus(status);
 
 
-        if(status.equals(Status.CANCELED)){ // 결제를 취소한 경우, 좌석을 다시 선택할 수 있도록 OrderDetail 삭제
+        if(status.equals(CANCELED)){ // 결제를 취소한 경우, 좌석을 다시 선택할 수 있도록 OrderDetail 삭제
             orderDetailRepository.deleteAllByOrder(order);
         }
-        else if (status.equals(Status.COMPLETED)) { // 결제가 완료된 경우, 좌석 수 만큼 상품 판매량 증가 & 상품 상세 잔여석 감소
+        else if (status.equals(COMPLETED)) { // 결제가 완료된 경우, 좌석 수 만큼 상품 판매량 증가 & 상품 상세 잔여석 감소
             List<OrderDetail> orderDetails = orderDetailRepository.findAllByOrder(order);
 
             for (OrderDetail orderDetail : orderDetails) {
@@ -174,4 +179,29 @@ public class OrderService {
 
     }
 
+    // 주문, 결제 취소
+    @Transactional
+    public void cancelOrderPayment(String orderNo) {
+        Optional<Order> optionalOrder = orderRepository.findByOrderNo(orderNo);
+        Order findOrder = optionalOrder.orElseThrow(() -> new CustomException(CustomErrorCode.ORDER_NOT_FOUND));
+
+        // 주문 상태 환불로 변경
+        findOrder.updateStatus(REFUNDED);
+
+        List<OrderDetail> orderDetails = orderDetailRepository.findAllByOrder(findOrder);
+        for (OrderDetail od : orderDetails) {
+            // 잔여석 복구
+            ProductDetail productDetail = od.getProductDetail();
+            productDetail.updateRemain(productDetail.getRemain() + 1);
+
+            // 판매량 복구
+            Product product = productDetail.getProduct();
+            product.updateSalesCount(product.getSalesCount() - 1);
+
+            // 주문 상세 삭제 -> 좌석 선택할 수 있도록
+            orderDetailRepository.delete(od);
+        }
+
+        paymentService.refund(findOrder);
+    }
 }
