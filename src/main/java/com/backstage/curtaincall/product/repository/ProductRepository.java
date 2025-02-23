@@ -13,19 +13,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Page<Product> findByProductNameContaining(String productName, Pageable pageable);
 
-    //특가상품
-//    @Query("SELECT DISTINCT p FROM Product p " +
-//            "LEFT JOIN FETCH p.specialProducts sp " +
-//            "WHERE p.productId = :productId AND sp.status = 'ACTIVE'")
-//    Optional<Product> findWithSpecialProduct(@Param("productId") Long productId);
-
-    //상품관 연관된거 전부 가져오기
     @Query("SELECT DISTINCT p FROM Product p " +
             "LEFT JOIN FETCH p.specialProducts sp " +
             "LEFT JOIN FETCH p.category c " +
             "LEFT JOIN FETCH p.productImage pi " +
-            "LEFT JOIN FETCH p.productDetails pd " +
-            "WHERE p.productId = :productId AND sp.status = 'ACTIVE'")
-    Optional<Product> findProductWithAll(@Param("productId") Long productId);
+            "WHERE p.productId = :productId")
+    Optional<Product> findAllWithoutDetails(@Param("productId") Long productId);
 
 }

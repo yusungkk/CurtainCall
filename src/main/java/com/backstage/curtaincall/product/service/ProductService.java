@@ -58,10 +58,10 @@ public class ProductService {
 //        return ProductResponseDto.fromEntity(findProduct);
 //    }
 
-    //상품조회시 연관된 데이터 전부 fetch join하여 N+1문제 해결
     @Transactional(readOnly = true)
     public ProductResponseDto getProduct(Long id) {
-        Product product = productRepository.findProductWithAll(id)
+        //상품과 연관된거 productDetails빼고 전부 가져오기
+        Product product = productRepository.findAllWithoutDetails(id)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         return ProductResponseDto.of(product);
