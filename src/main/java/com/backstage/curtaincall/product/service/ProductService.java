@@ -16,7 +16,9 @@ import com.backstage.curtaincall.product.entity.ProductImage;
 import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
+import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -216,6 +218,20 @@ public class ProductService {
             productImageRepository.save(newProductImage);
         }
 
+        //특가 상품 변경
+        List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
+
+        // 각 SpecialProduct 업데이트
+        for (SpecialProduct sp : specialProducts) {
+            if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
+                // 캐시 반영하여 업데이트
+                specialProductService.update(sp.toUpdatedDto(product));
+            } else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
+                // 캐시를 조회하지 않고 업데이트
+                specialProductService.updateNotCache(sp.toUpdatedDto(product));
+            }
+        }
+        
         return ProductResponseDto.fromEntity(product);
     }
 
@@ -228,7 +244,14 @@ public class ProductService {
         // 연관된 SpecialProduct 삭제
         List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
         for (SpecialProduct sp : specialProducts) {
-            specialProductService.delete(sp.getId());
+            if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
+                // 캐시 반영해서 삭제
+                specialProductService.delete(sp.getId());
+            }
+            else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
+                // 캐시를 조회하지 않고 삭제
+                specialProductService.deleteNotCache(sp.getId());
+            }
         }
 
 

@@ -139,6 +139,17 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
+    @Transactional
+    public void updateNotCache(SpecialProductDto dto) {
+        validate(dto);
+
+        SpecialProduct sp = specialProductRepository.findById(dto.getSpecialProductId())
+                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+
+        sp.update(dto);
+    }
+
+
     // Soft 삭제 : 캐시에서 해당 항목 제거
     @Transactional
     @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
@@ -147,6 +158,13 @@ public class SpecialProductService {
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.delete();
         return sp.toDto();
+    }
+
+    @Transactional
+    public void deleteNotCache(Long id) {
+        SpecialProduct sp = specialProductRepository.findById(id)
+                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+        sp.delete();
     }
 
     // 승인: 캐시에 복구된 엔티티 업데이트
@@ -165,15 +183,6 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
-    private void validateAlreadyActiveProduct(Long productId) {
-        boolean isAlreadyActive = specialProductRepository.existsByProductIdAndStatus(
-                productId);
-
-        if (isAlreadyActive) {
-            throw new CustomException(ALREADY_ACTIVE_SPECIAL_PRODUCT_EXISTS);
-        }
-    }
-
 
     //승인 취소
     @Transactional
@@ -186,6 +195,14 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
+    private void validateAlreadyActiveProduct(Long productId) {
+        boolean isAlreadyActive = specialProductRepository.existsByProductIdAndStatus(
+                productId);
+
+        if (isAlreadyActive) {
+            throw new CustomException(ALREADY_ACTIVE_SPECIAL_PRODUCT_EXISTS);
+        }
+    }
 
     private void validate(SpecialProductDto dto) {
         // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
