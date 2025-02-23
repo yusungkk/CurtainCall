@@ -38,6 +38,7 @@ public class SchedulerService {
     @Transactional
     public void approveStartingSpecialProducts() {
         LocalDate today = LocalDate.now();
+        // 할인 시작날짜와 종료날짜가 오늘을 포함하는 상품 조회
         List<SpecialProduct> startingProducts = specialProductRepository.findAllStartingSpecialProducts(today);
         for (SpecialProduct sp : startingProducts) {
             // 할인 시작 상품 승인

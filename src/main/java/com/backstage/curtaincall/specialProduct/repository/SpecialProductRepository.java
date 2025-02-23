@@ -150,26 +150,14 @@ public class SpecialProductRepository {
         em.persist(specialProduct);
     }
 
-    // 할인 종료 날짜가 오늘 이전인 상품을 자동으로 만료 처리 (DELETED 상태로 변경)
-//    public void deleteExpiredSpecialProducts(LocalDate today) {
-//        int updatedCount = em.createQuery(
-//                        "UPDATE SpecialProduct sp SET sp.status = :deletedStatus " +
-//                                "WHERE sp.endDate < :today AND sp.status != :deletedStatus")
-//                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
-//                .setParameter("today", today)
-//                .executeUpdate();
-//        em.clear();
-//    }
 
-    // 할인 시작 날짜가 오늘인 상품 조회
     public List<SpecialProduct> findAllStartingSpecialProducts(LocalDate today) {
         return em.createQuery(
-                        "SELECT sp FROM SpecialProduct sp WHERE sp.startDate = :today",
+                        "SELECT sp FROM SpecialProduct sp WHERE :today BETWEEN sp.startDate and sp.endDate",
                         SpecialProduct.class)
                 .setParameter("today", today)
                 .getResultList();
     }
-
 
     public boolean existsByProductIdAndStatus(Long productId) {
         return em.createQuery(
