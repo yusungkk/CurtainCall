@@ -3,12 +3,15 @@ package com.backstage.curtaincall.order.dto;
 import com.backstage.curtaincall.order.entity.Order;
 import com.backstage.curtaincall.order.entity.Status;
 import com.backstage.curtaincall.user.entity.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
-import java.util.UUID;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 @Getter
 public class OrderRequestDto {

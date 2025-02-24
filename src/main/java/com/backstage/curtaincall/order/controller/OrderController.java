@@ -3,6 +3,7 @@ package com.backstage.curtaincall.order.controller;
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.order.dto.OrderRequestDto;
 import com.backstage.curtaincall.order.dto.OrderResponseDto;
+import com.backstage.curtaincall.order.dto.OrderSuccessResponseDto;
 import com.backstage.curtaincall.order.entity.Status;
 import com.backstage.curtaincall.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,14 @@ public class OrderController {
     public ResponseEntity<List<String>> getReservedSeats(@RequestParam Long productDetailId) {
         List<String> reservedSeats = orderService.getReservedSeats(productDetailId);
         return ResponseEntity.ok(reservedSeats);
+    }
+
+    // 주문 성공 응답 API
+    @GetMapping("/{orderId}/success")
+    public ResponseEntity<OrderSuccessResponseDto> getOrderSuccessResponse(@PathVariable Long orderId) {
+        // globalExceptionHandler 처리
+        OrderSuccessResponseDto response = orderService.getOrderSuccess(orderId);
+        return ResponseEntity.ok(response);
     }
 
     // 주문 생성

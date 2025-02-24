@@ -2,7 +2,7 @@ package com.backstage.curtaincall.payment.entity;
 
 import com.backstage.curtaincall.global.entity.BaseEntity;
 import com.backstage.curtaincall.order.entity.Order;
-import com.backstage.curtaincall.user.entity.User;
+import com.backstage.curtaincall.payment.dto.PaymentRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -32,4 +32,16 @@ public class Payment extends BaseEntity {
     @OneToOne
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
+
+    public static Payment create(PaymentRequestDto requestDto, Order order) {
+        Payment payment = new Payment();
+
+        payment.paymentNo = requestDto.getPaymentNo();
+        payment.payStatus = requestDto.getPayStatus();
+        payment.price = requestDto.getPrice();
+        payment.cardName = requestDto.getCardName();
+        payment.order = order;
+
+        return payment;
+    }
 }
