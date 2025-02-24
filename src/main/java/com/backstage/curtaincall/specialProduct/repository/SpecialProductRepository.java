@@ -57,6 +57,9 @@ public class SpecialProductRepository {
             countJpql.append("AND p.productName LIKE :keyword ");
         }
 
+        // 상품 이름 순으로 정렬하고, 동일한 이름 내에서는 종료일이 작은 순으로 정렬
+        jpql.append("ORDER BY p.productName ASC, sp.endDate ASC");
+
         TypedQuery<SpecialProduct> query = em.createQuery(jpql.toString(), SpecialProduct.class);
         TypedQuery<Long> countQuery = em.createQuery(countJpql.toString(), Long.class);
 
