@@ -4,13 +4,18 @@ import com.backstage.curtaincall.chat.dto.ChatMessageDto;
 import com.backstage.curtaincall.chat.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
-@Controller
+@RestController
 @RequiredArgsConstructor
 public class ChatController {
 
@@ -22,5 +27,15 @@ public class ChatController {
         log.info("[{}] {}: {}", roomId, message.getSender(), message.getContent());
         chatService.saveMessage(message);
         template.convertAndSend("/queue/chat/" + roomId, message);
+    }
+
+
+    @GetMapping("/api/v1/chat/{roomId}")
+    public ResponseEntity<Page<ChatMessageDto>> getMessages(
+            @PathVariable String roomId,
+            @RequestParam(defaultValue = "0") int offset,
+            @RequestParam(defaultValue = "20") int limit) {
+
+        return ResponseEntity.ok(chatService.findMessagesByRoomId(roomId, offset, limit));
     }
 }

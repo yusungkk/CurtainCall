@@ -4,13 +4,14 @@ package com.backstage.curtaincall.chat.controller;
 import com.backstage.curtaincall.chat.dto.ChatRoomDto;
 import com.backstage.curtaincall.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/chat")
+@RequestMapping("/api/v1/chat-rooms")
 @RequiredArgsConstructor
 public class ChatRoomController {
 
@@ -22,14 +23,15 @@ public class ChatRoomController {
         return ResponseEntity.ok(chatRoom);
     }
 
-    @GetMapping("/rooms")
-    public ResponseEntity<List<ChatRoomDto>> getAllRooms() {
-        return ResponseEntity.ok(chatRoomService.getAllRooms());
+    @GetMapping
+    public ResponseEntity<List<ChatRoomDto>> getAllRooms(@RequestParam String active) {
+        List<ChatRoomDto> rooms = chatRoomService.getRooms(active);
+        return ResponseEntity.ok(rooms);
     }
 
-    @PostMapping("/assign")
-    public ResponseEntity<ChatRoomDto> assignAgent(@RequestParam String roomId, @RequestParam String admin) {
-        ChatRoomDto chatRoom = chatRoomService.assignAdmin(roomId, admin);
-        return ResponseEntity.ok(chatRoom);
+    @PatchMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void assignAgent(@RequestParam String roomId) {
+        chatRoomService.assignAdmin(roomId, "admin");
     }
 }
