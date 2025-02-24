@@ -18,8 +18,9 @@ import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
+import com.backstage.curtaincall.specialProduct.handler.SpecialProductDeleteHandler;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
-import com.backstage.curtaincall.specialProduct.service.SpecialProductUpdater;
+import com.backstage.curtaincall.specialProduct.handler.SpecialProductUpdateHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,8 +46,8 @@ public class ProductService {
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
     private final CategoryRepository categoryRepository;
-    private final SpecialProductService specialProductService;
-    private final SpecialProductUpdater specialProductUpdater;
+    private final SpecialProductUpdateHandler specialProductUpdateHandler;
+    private final SpecialProductDeleteHandler specialProductDeleteHandler;
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
@@ -220,7 +221,7 @@ public class ProductService {
         }
 
         //특가 상품 변경
-        specialProductUpdater.updateAllByProduct(productId, product);
+        specialProductUpdateHandler.updateAllByProduct(productId, product);
 
         return ProductResponseDto.fromEntity(product);
     }
@@ -232,18 +233,7 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         // 연관된 SpecialProduct 삭제
-        List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
-        for (SpecialProduct sp : specialProducts) {
-            if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
-                // 캐시 반영해서 삭제
-                specialProductService.deleteWithCache(sp.getId());
-            }
-            else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
-                // 캐시를 조회하지 않고 삭제
-                specialProductService.deleteWithOutCache(sp.getId());
-            }
-        }
-
+        specialProductDeleteHandler.deleteAllByProduct(productId);
 
         // S3 및 DB에서 이미지 삭제
         ProductImage productImage = product.getProductImage();

@@ -2,7 +2,7 @@ package com.backstage.curtaincall.specialProduct.controller;
 
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
-import com.backstage.curtaincall.specialProduct.service.SpecialProductUpdater;
+import com.backstage.curtaincall.specialProduct.handler.SpecialProductUpdateHandler;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SpecialProductController {
 
     private final SpecialProductService specialProductService;
-    private final SpecialProductUpdater specialProductUpdater;
+    private final SpecialProductUpdateHandler specialProductUpdateHandler;
 
 
     // 전체 조회
@@ -69,7 +69,7 @@ public class SpecialProductController {
     // 수정
     @PutMapping
     public void update(@RequestBody SpecialProductDto dto) {
-        specialProductUpdater.update(dto);
+        specialProductUpdateHandler.update(dto);
     }
 
     // 삭제 (소프트 삭제)

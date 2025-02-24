@@ -41,6 +41,12 @@ public class SpecialProductService {
     private final ProductRepository productRepository; // Product 조회용
     private final RedisTemplate<String, SpecialProductDto> redisTemplate;
 
+    //단건조회(삭제되지 않은 것만)
+    public SpecialProduct findById(Long id){
+        return specialProductRepository.findById(id)
+                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+    }
+
     // 전체 조회
     public List<SpecialProductDto> findAll(){
         List<SpecialProduct> specialProducts = specialProductRepository.findAll();
@@ -126,28 +132,17 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
-
     // 수정: 캐시 반영 O
     @Transactional
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #dto.specialProductId", cacheManager = "cacheManager")
-    public SpecialProductDto updateWithCache(SpecialProductDto dto) {
-
-        validate(dto);
-
-        SpecialProduct sp = specialProductRepository.findById(dto.getSpecialProductId())
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+    public SpecialProductDto updateWithCache(SpecialProduct sp, SpecialProductDto dto) {
         sp.update(dto);
         return sp.toDto();
     }
 
     // 수정: 캐시 업데이트 반영 X
     @Transactional
-    public void updateWithOutCache(SpecialProductDto dto) {
-        validate(dto);
-
-        SpecialProduct sp = specialProductRepository.findById(dto.getSpecialProductId())
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
-
+    public void updateWithOutCache(SpecialProduct sp, SpecialProductDto dto) {
         sp.update(dto);
     }
 
@@ -207,7 +202,7 @@ public class SpecialProductService {
         }
     }
 
-    private void validate(SpecialProductDto dto) {
+    public void validate(SpecialProductDto dto) {
         // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
         validateOverDate(dto);
         //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
@@ -222,7 +217,7 @@ public class SpecialProductService {
         }
     }
 
-    private void validateOverDate(SpecialProductDto dto) {
+    public void validateOverDate(SpecialProductDto dto) {
         if (dto.getStartDate().isAfter(dto.getDiscountStartDate()) ||
                 dto.getEndDate().isBefore(dto.getDiscountEndDate())) {
             throw new CustomException(DISCOUNT_PERIOD_OUT_OF_PRODUCT_RANGE);
