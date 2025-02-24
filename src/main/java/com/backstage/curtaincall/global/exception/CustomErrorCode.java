@@ -42,7 +42,7 @@ public enum CustomErrorCode {
     // 추가적인 글로벌 에러 코드
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST, "유효성 검증 실패"),
     NPE(HttpStatus.BAD_REQUEST, "Null Pointer Exception"),
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류")
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 내부 오류"),
     ;
 
     private final HttpStatus status;

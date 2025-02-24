@@ -16,11 +16,15 @@ import com.backstage.curtaincall.product.entity.ProductImage;
 import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
+import com.backstage.curtaincall.recommend.service.UserRecommendService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,6 +45,11 @@ public class ProductService {
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
     private final CategoryRepository categoryRepository;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final UserRecommendService userRecommendService;
+
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
@@ -223,5 +232,6 @@ public class ProductService {
         // 상품 삭제
         productRepository.delete(product);
     }
+
 
 }

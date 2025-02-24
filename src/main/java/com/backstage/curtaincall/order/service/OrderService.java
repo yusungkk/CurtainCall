@@ -14,6 +14,7 @@ import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.entity.ProductDetail;
 import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
+import com.backstage.curtaincall.recommend.service.UserRecommendService;
 import com.backstage.curtaincall.user.entity.User;
 import com.backstage.curtaincall.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -31,6 +32,7 @@ public class OrderService {
     private final UserRepository userRepository;
     private final ProductDetailRepository productDetailRepository;
     private final ProductRepository productRepository;
+    private final UserRecommendService userRecommendService;
 
     // 특정 공연 일정(productDetailId)의 예약된 좌석 조회
     @Transactional
