@@ -20,8 +20,8 @@ public class Payment extends BaseEntity {
     @Column(nullable = false, unique = true, length = 50)
     private String paymentNo;
 
-    // @Enumerated(EnumType.STRING)
-    private String payStatus;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus payStatus;
 
     @Column(nullable = false)
     private int price;
@@ -37,11 +37,15 @@ public class Payment extends BaseEntity {
         Payment payment = new Payment();
 
         payment.paymentNo = requestDto.getPaymentNo();
-        payment.payStatus = requestDto.getPayStatus();
+        payment.payStatus = PaymentStatus.PAID;
         payment.price = requestDto.getPrice();
         payment.cardName = requestDto.getCardName();
         payment.order = order;
 
         return payment;
+    }
+
+    public void updateStatus(PaymentStatus status) {
+        this.payStatus = status;
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -40,7 +41,8 @@ public class OrderController {
 
     // 주문 내역 조회
     @PostMapping("/history")
-    public ResponseEntity<List<OrderHistoryDto>> getOrderList(@RequestBody String email) {
+    public ResponseEntity<List<OrderHistoryDto>> getOrderList(@RequestBody Map<String, String> request) {
+        String email = request.get("email").replace("\"", "");
         List<OrderHistoryDto> responses = orderService.getOrderHistory(email);
         return ResponseEntity.ok(responses);
     }
@@ -75,5 +77,13 @@ public class OrderController {
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
         orderService.updateOrderStatus(orderId, Status.CANCELED);
         return ResponseEntity.ok("주문이 취소되었습니다.");
+    }
+
+    // 완료된 주문 취소 API (예매 내역에서 취소)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PatchMapping("/cancel")
+    public void refundOrder(@RequestBody Map<String, String> request) {
+        String orderNo = request.get("orderNo").replace("\"", "");
+        orderService.cancelOrderPayment(orderNo);
     }
 }
