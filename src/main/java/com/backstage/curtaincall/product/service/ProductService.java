@@ -17,6 +17,10 @@ import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
 import com.backstage.curtaincall.recommend.service.UserRecommendService;
+import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
+import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -50,6 +54,7 @@ public class ProductService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final UserRecommendService userRecommendService;
 
+    private final SpecialProductService specialProductService;
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
@@ -59,13 +64,23 @@ public class ProductService {
                 .map(ProductResponseDto::fromEntity);
     }
 
+//    @Transactional(readOnly = true)
+//    public ProductResponseDto getProduct(Long id) {
+//        Optional<Product> optionalProduct = productRepository.findById(id);
+//        Product findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+//
+//        return ProductResponseDto.fromEntity(findProduct);
+//    }
+
     @Transactional(readOnly = true)
     public ProductResponseDto getProduct(Long id) {
-        Optional<Product> optionalProduct = productRepository.findById(id);
-        Product findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+        //상품과 연관된거 productDetails빼고 전부 가져오기
+        Product product = productRepository.findAllWithoutDetails(id)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
-        return ProductResponseDto.fromEntity(findProduct);
+        return ProductResponseDto.of(product);
     }
+
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> searchProductsByProductName(String keyword, int page, int size, String sortBy, String direction) {
@@ -185,7 +200,9 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         // 전달된 내용 업데이트
-        // 유효성 검사는 컨트롤러에서
+        Optional<Category> optionalCategory = categoryRepository.findById(requestDto.getCategoryId());
+        Category findCategory = optionalCategory.orElseThrow(() -> new RuntimeException("해당 카테고리 없음"));//Todo: 추후 커스텀 교체
+        product.updateCategory(findCategory);
         product.update(requestDto);
 
         // 이미지 업데이트
@@ -210,6 +227,20 @@ public class ProductService {
             productImageRepository.save(newProductImage);
         }
 
+        //특가 상품 변경
+        List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
+
+        // 연관된 SpecialProduct 변경
+        for (SpecialProduct sp : specialProducts) {
+            if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
+                // 캐시 반영하여 변경
+                specialProductService.update(sp.toUpdatedDto(product));
+            } else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
+                // 캐시를 조회하지 않고 변경
+                specialProductService.updateNotCache(sp.toUpdatedDto(product));
+            }
+        }
+
         return ProductResponseDto.fromEntity(product);
     }
 
@@ -218,6 +249,20 @@ public class ProductService {
         // Product 조회
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
+
+        // 연관된 SpecialProduct 삭제
+        List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
+        for (SpecialProduct sp : specialProducts) {
+            if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
+                // 캐시 반영해서 삭제
+                specialProductService.delete(sp.getId());
+            }
+            else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
+                // 캐시를 조회하지 않고 삭제
+                specialProductService.deleteNotCache(sp.getId());
+            }
+        }
+
 
         // S3 및 DB에서 이미지 삭제
         ProductImage productImage = product.getProductImage();
@@ -232,6 +277,5 @@ public class ProductService {
         // 상품 삭제
         productRepository.delete(product);
     }
-
 
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 
 @Builder
 @Getter
-@NoArgsConstructor  // 기본 생성자 추가 (필수)
+@NoArgsConstructor
 @AllArgsConstructor
 public class UserJoinRequest {
     @NotBlank

@@ -36,4 +36,8 @@ public class ProductDetail extends BaseEntity {
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    public void updateRemain(int updatedRemain) {
+        remain = updatedRemain;
+    }
 }

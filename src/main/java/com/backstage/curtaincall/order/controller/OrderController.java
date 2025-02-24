@@ -1,8 +1,10 @@
 package com.backstage.curtaincall.order.controller;
 
 import com.backstage.curtaincall.global.exception.CustomException;
+import com.backstage.curtaincall.order.dto.OrderHistoryDto;
 import com.backstage.curtaincall.order.dto.OrderRequestDto;
 import com.backstage.curtaincall.order.dto.OrderResponseDto;
+import com.backstage.curtaincall.order.dto.OrderSuccessResponseDto;
 import com.backstage.curtaincall.order.entity.Status;
 import com.backstage.curtaincall.order.service.OrderService;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -26,6 +29,22 @@ public class OrderController {
     public ResponseEntity<List<String>> getReservedSeats(@RequestParam Long productDetailId) {
         List<String> reservedSeats = orderService.getReservedSeats(productDetailId);
         return ResponseEntity.ok(reservedSeats);
+    }
+
+    // 주문 성공 응답 API
+    @GetMapping("/{orderId}/success")
+    public ResponseEntity<OrderSuccessResponseDto> getOrderSuccessResponse(@PathVariable Long orderId) {
+        // globalExceptionHandler 처리
+        OrderSuccessResponseDto response = orderService.getOrderSuccess(orderId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 주문 내역 조회
+    @PostMapping("/history")
+    public ResponseEntity<List<OrderHistoryDto>> getOrderList(@RequestBody Map<String, String> request) {
+        String email = request.get("email").replace("\"", "");
+        List<OrderHistoryDto> responses = orderService.getOrderHistory(email);
+        return ResponseEntity.ok(responses);
     }
 
     // 주문 생성
@@ -58,5 +77,13 @@ public class OrderController {
     public ResponseEntity<?> cancelOrder(@PathVariable Long orderId) {
         orderService.updateOrderStatus(orderId, Status.CANCELED);
         return ResponseEntity.ok("주문이 취소되었습니다.");
+    }
+
+    // 완료된 주문 취소 API (예매 내역에서 취소)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PatchMapping("/cancel")
+    public void refundOrder(@RequestBody Map<String, String> request) {
+        String orderNo = request.get("orderNo").replace("\"", "");
+        orderService.cancelOrderPayment(orderNo);
     }
 }
