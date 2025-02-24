@@ -2,11 +2,13 @@ package com.backstage.curtaincall.chat.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 @AllArgsConstructor
-public class ChatRoom {
+public class ChatMessageDto {
     private String roomId;
-    private String user;
-    private String agent;
+    private String sender;
+    private String content;
 }

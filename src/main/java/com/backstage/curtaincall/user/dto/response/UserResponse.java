@@ -5,6 +5,8 @@ import lombok.Getter;
 
 @Getter
 public class UserResponse {
+    private final long id;
+
     private final String email;
 
     private final String password;
@@ -13,10 +15,14 @@ public class UserResponse {
 
     private final String phone;
 
+    private final boolean isActive;
+
     public UserResponse(User user) {
+        this.id = user.getId();
         this.email = user.getEmail();
         this.password = user.getPassword();
         this.name = user.getName();
         this.phone = user.getPhone();
+        this.isActive = user.isActive();
     }
 }
