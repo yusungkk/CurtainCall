@@ -24,8 +24,8 @@ public class SpecialProductRepository {
     public List<SpecialProduct> findAll() {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp JOIN FETCH sp.product p " +
-                                "WHERE sp.status != :deletedStatus", SpecialProduct.class)
-                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                                "WHERE sp.status != :deleted", SpecialProduct.class)
+                .setParameter("deleted", SpecialProductStatus.DELETED)
                 .getResultList();
     }
 
@@ -34,8 +34,8 @@ public class SpecialProductRepository {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp JOIN FETCH sp.product p " +
                                 "LEFT JOIN FETCH p.productImage pi " +
-                                "WHERE sp.status = :activeStatus", SpecialProduct.class)
-                .setParameter("activeStatus", SpecialProductStatus.ACTIVE)
+                                "WHERE sp.status = :active", SpecialProduct.class)
+                .setParameter("active", SpecialProductStatus.ACTIVE)
                 .getResultList();
     }
 
@@ -47,10 +47,10 @@ public class SpecialProductRepository {
                 "SELECT sp FROM SpecialProduct sp " +
                         "JOIN FETCH sp.product p " +
                         "LEFT JOIN FETCH p.productImage pi " +
-                        "WHERE sp.status != :deletedStatus ");
+                        "WHERE sp.status != :deleted ");
         StringBuilder countJpql = new StringBuilder(
                 "SELECT COUNT(sp) FROM SpecialProduct sp JOIN sp.product p " +
-                        "WHERE sp.status != :deletedStatus ");
+                        "WHERE sp.status != :deleted ");
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             jpql.append("AND p.productName LIKE :keyword ");
@@ -60,8 +60,8 @@ public class SpecialProductRepository {
         TypedQuery<SpecialProduct> query = em.createQuery(jpql.toString(), SpecialProduct.class);
         TypedQuery<Long> countQuery = em.createQuery(countJpql.toString(), Long.class);
 
-        query.setParameter("deletedStatus", SpecialProductStatus.DELETED);
-        countQuery.setParameter("deletedStatus", SpecialProductStatus.DELETED);
+        query.setParameter("deleted", SpecialProductStatus.DELETED);
+        countQuery.setParameter("deleted", SpecialProductStatus.DELETED);
 
         if (keyword != null && !keyword.trim().isEmpty()) {
             query.setParameter("keyword", "%" + keyword + "%");
@@ -81,17 +81,17 @@ public class SpecialProductRepository {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp JOIN FETCH sp.product p " +
                                 "LEFT JOIN FETCH p.productImage pi " +
-                                "WHERE sp.status = :deletedStatus", SpecialProduct.class)
-                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                                "WHERE sp.status = :deleted", SpecialProduct.class)
+                .setParameter("deleted", SpecialProductStatus.DELETED)
                 .getResultList();
     }
 
     public Optional<SpecialProduct> findById(Long id) {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp " +
-                                "WHERE sp.id = :id AND sp.status != :deletedStatus", SpecialProduct.class)
+                                "WHERE sp.id = :id AND sp.status != :deleted", SpecialProduct.class)
                 .setParameter("id", id)
-                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                .setParameter("deleted", SpecialProductStatus.DELETED)
                 .getResultStream()
                 .findFirst();
     }
@@ -99,9 +99,9 @@ public class SpecialProductRepository {
     public List<SpecialProduct> findAllByProductId(Long productId){
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp " +
-                                "WHERE sp.product.productId = :productId AND sp.status != :deletedStaus", SpecialProduct.class)
+                                "WHERE sp.product.productId = :productId AND sp.status != :deleted", SpecialProduct.class)
                 .setParameter("productId", productId)
-                .setParameter("deletedStaus", SpecialProductStatus.DELETED)
+                .setParameter("deleted", SpecialProductStatus.DELETED)
                 .getResultList();
     }
 
@@ -109,7 +109,7 @@ public class SpecialProductRepository {
         return em.createQuery(
                         "SELECT sp FROM SpecialProduct sp " +
                                 "WHERE sp.product.id = :productId " +
-                                "AND sp.status != :deletedStatus " +
+                                "AND sp.status != :deleted " +
                                 "AND (:excludeId IS NULL OR sp.id <> :excludeId) " +
                                 "AND ((sp.startDate BETWEEN :newStartDate AND :newEndDate) " +
                                 "OR (sp.endDate BETWEEN :newStartDate AND :newEndDate) " +
@@ -119,7 +119,7 @@ public class SpecialProductRepository {
                 .setParameter("excludeId", excludeId)
                 .setParameter("newStartDate", newStartDate)
                 .setParameter("newEndDate", newEndDate)
-                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                .setParameter("deleted", SpecialProductStatus.DELETED)
                 .getResultList();
     }
 
@@ -162,11 +162,20 @@ public class SpecialProductRepository {
 
     public List<SpecialProduct> findAllStartingSpecialProducts(LocalDate today) {
         return em.createQuery(
-                        "SELECT sp FROM SpecialProduct sp WHERE :today BETWEEN sp.startDate and sp.endDate",
+                        "SELECT sp FROM SpecialProduct sp " +
+                                "WHERE sp.endDate = ( " +
+                                "    SELECT MIN(sp2.endDate) FROM SpecialProduct sp2 " +
+                                "    WHERE sp2.product.id = sp.product.id " +
+                                "    AND sp2.endDate >= :today " +
+                                "    AND sp2.status != :deleted " +
+                                ") " +
+                                "AND sp.status != :deleted",
                         SpecialProduct.class)
                 .setParameter("today", today)
+                .setParameter("deleted", SpecialProductStatus.DELETED)
                 .getResultList();
     }
+
 
     public boolean existsByProductIdAndStatus(Long productId) {
         return em.createQuery(
@@ -185,9 +194,9 @@ public class SpecialProductRepository {
     public List<Long> findExpiredSpecialProductIds(LocalDate today) {
         return em.createQuery(
                         "SELECT sp.id FROM SpecialProduct sp " +
-                                "WHERE sp.endDate < :today AND sp.status != :deletedStatus", Long.class)
+                                "WHERE sp.endDate < :today AND sp.status != :deleted", Long.class)
                 .setParameter("today", today)
-                .setParameter("deletedStatus", SpecialProductStatus.DELETED)
+                .setParameter("deleted", SpecialProductStatus.DELETED)
                 .getResultList();
     }
 }
