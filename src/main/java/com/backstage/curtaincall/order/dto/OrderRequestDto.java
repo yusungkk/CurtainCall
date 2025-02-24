@@ -14,8 +14,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
 public class OrderRequestDto {
     private Long userId;
     private Long productDetailId;
