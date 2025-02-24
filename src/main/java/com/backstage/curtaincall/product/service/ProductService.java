@@ -19,6 +19,7 @@ import com.backstage.curtaincall.product.repository.ProductRepository;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
+import com.backstage.curtaincall.specialProduct.service.SpecialProductUpdater;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -45,6 +46,7 @@ public class ProductService {
     private final S3Service s3Service;
     private final CategoryRepository categoryRepository;
     private final SpecialProductService specialProductService;
+    private final SpecialProductUpdater specialProductUpdater;
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
@@ -218,19 +220,8 @@ public class ProductService {
         }
 
         //특가 상품 변경
-        List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
+        specialProductUpdater.updateAllByProduct(productId, product);
 
-        // 연관된 SpecialProduct 변경
-        for (SpecialProduct sp : specialProducts) {
-            if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
-                // 캐시 반영하여 변경
-                specialProductService.updateWithCache(sp.toUpdatedDto(product));
-            } else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
-                // 캐시를 조회하지 않고 변경
-                specialProductService.updateWithOutCache(sp.toUpdatedDto(product));
-            }
-        }
-        
         return ProductResponseDto.fromEntity(product);
     }
 
