@@ -22,10 +22,7 @@ public class SpecialProductUpdateHandler {
     @Transactional
     public void update(SpecialProductDto dto) {
 
-        // 1. 유효성 검사 수행
         specialProductService.validate(dto);
-
-        // 2. 특가상품 조회
         SpecialProduct sp = specialProductService.findById(dto.getSpecialProductId());
 
         if (dto.getStatus() == SpecialProductStatus.ACTIVE) {
@@ -35,6 +32,7 @@ public class SpecialProductUpdateHandler {
             // 캐시를 조회하지 않고 변경
             specialProductService.updateWithOutCache(sp, dto);
         } else {
+            // 삭제된 특가상품을 변경하는 경우 예외발생
             throw new CustomException(CANNOT_UPDATE_DELETED_SPECIAL_PRODUCT);
         }
     }
@@ -56,6 +54,8 @@ public class SpecialProductUpdateHandler {
                 // 캐시를 조회하지 않고 변경
                 specialProductService.updateWithOutCache(sp, updatedDto);
             }
+
+            //삭제된 특가상품을 가진 상품이 변경될 수 있으므로 예외 처리 X
         }
     }
 }

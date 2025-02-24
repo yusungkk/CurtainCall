@@ -172,10 +172,11 @@ public class SpecialProductRepository {
                                 "    AND sp2.endDate >= :today " +
                                 "    AND sp2.status != :deleted " +
                                 ") " +
-                                "AND sp.status != :deleted",
+                                "AND sp.status = :upcoming",
                         SpecialProduct.class)
                 .setParameter("today", today)
                 .setParameter("deleted", SpecialProductStatus.DELETED)
+                .setParameter("upcoming", SpecialProductStatus.UPCOMING)
                 .getResultList();
     }
 

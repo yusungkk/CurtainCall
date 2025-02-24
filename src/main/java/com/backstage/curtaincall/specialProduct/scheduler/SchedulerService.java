@@ -1,6 +1,9 @@
 package com.backstage.curtaincall.specialProduct.scheduler;
 
+import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
+import com.backstage.curtaincall.specialProduct.handler.SpecialProductDeleteHandler;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import java.time.LocalDate;
@@ -17,8 +20,8 @@ public class SchedulerService {
 
     private final SpecialProductRepository specialProductRepository;
     private final SpecialProductService specialProductService;
+    private final SpecialProductDeleteHandler specialProductDeleteHandler;
 
-    @Transactional
     public void deleteExpiredSpecialProducts() {
         LocalDate today = LocalDate.now();
 
@@ -26,24 +29,25 @@ public class SchedulerService {
         List<Long> expiredSpecialProductIds = specialProductRepository.findExpiredSpecialProductIds(today);
 
         if (!expiredSpecialProductIds.isEmpty()) {
-            log.info("🔥 만료된 특가 상품 개수: {}", expiredSpecialProductIds.size());
-
-            // 2. 만료된 상품 Redis 캐시와 DB에서 삭제
+            // 2. 만료된 상품 삭제
             for (Long spId : expiredSpecialProductIds) {
-                specialProductService.deleteWithCache(spId);
+                specialProductDeleteHandler.delete(spId);
             }
-
         }
     }
 
-    @Transactional
     public void approveStartingSpecialProducts() {
         LocalDate today = LocalDate.now();
-        // 각 productId별 종료일이 가장 빠른 특가상품을 조회(삭제되지 않는 것들 중)
+        // 각 productId별 삭제되지 않은 특가상품 중 종료일이 가장 빠른 것이 상태가 할인 예정일때만 가져옴
         List<SpecialProduct> startingProducts = specialProductRepository.findAllStartingSpecialProducts(today);
+
         for (SpecialProduct sp : startingProducts) {
-            // 할인 시작 상품 승인
-            specialProductService.approve(sp.getId());
+            try {
+                specialProductService.approve(sp.getId());
+            } catch (Exception e) {
+                // 실패한 상품은 넘어가고, 다른 상품은 계속 승인하도록 처리
+                log.warn("특가 상품 승인 실패 (ID: {}), 이유: {}", sp.getId(), e.getMessage());
+            }
         }
     }
 }

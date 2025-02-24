@@ -1,6 +1,7 @@
 package com.backstage.curtaincall.specialProduct.controller;
 
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
+import com.backstage.curtaincall.specialProduct.handler.SpecialProductDeleteHandler;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import com.backstage.curtaincall.specialProduct.handler.SpecialProductUpdateHandler;
 import java.util.List;
@@ -23,6 +24,7 @@ public class SpecialProductController {
 
     private final SpecialProductService specialProductService;
     private final SpecialProductUpdateHandler specialProductUpdateHandler;
+    private final SpecialProductDeleteHandler specialProductDeleteHandler;
 
 
     // 전체 조회
@@ -75,7 +77,7 @@ public class SpecialProductController {
     // 삭제 (소프트 삭제)
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        specialProductService.deleteWithCache(id);
+        specialProductDeleteHandler.delete(id);
     }
 
     // 승인

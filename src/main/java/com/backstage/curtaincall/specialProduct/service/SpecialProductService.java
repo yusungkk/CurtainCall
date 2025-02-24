@@ -7,6 +7,7 @@ import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUN
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.OVERLAPPING_SPECIAL_PRODUCT_DISCOUNT;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.PRODUCT_NOT_FOUND;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.SPECIAL_PRODUCT_NOT_FOUND;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.UPCOMING_SPECIAL_PRODUCT_NOT_FOUND;
 
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.product.entity.Product;
@@ -30,6 +31,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -150,18 +152,16 @@ public class SpecialProductService {
     // Soft 삭제 : 캐시 반영 O
     @Transactional
     @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
-    public SpecialProductDto deleteWithCache(Long id) {
-        SpecialProduct sp = specialProductRepository.findById(id)
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+    public SpecialProductDto deleteWithCache(SpecialProduct sp) {
         sp.delete();
         return sp.toDto();
     }
 
     // Soft 삭제 : 캐시 반영 X
     @Transactional
-    public void deleteWithOutCache(Long id) {
-        SpecialProduct sp = specialProductRepository.findById(id)
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+    public void deleteWithOutCache(SpecialProduct sp) {
+//        SpecialProduct sp = specialProductRepository.findById(id)
+//                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.delete();
     }
 
@@ -170,7 +170,7 @@ public class SpecialProductService {
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
     public SpecialProductDto approve(Long id) {
         SpecialProduct sp = specialProductRepository.findByIdUpcoming(id)
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(UPCOMING_SPECIAL_PRODUCT_NOT_FOUND));
 
         // 이미 같은 Product에 ACTIVE 상태의 특가 상품이 있는지 확인
         validateAlreadyActiveProduct(sp.getProduct().getProductId());
