@@ -1,6 +1,7 @@
 package com.backstage.curtaincall.order.controller;
 
 import com.backstage.curtaincall.global.exception.CustomException;
+import com.backstage.curtaincall.order.dto.OrderHistoryDto;
 import com.backstage.curtaincall.order.dto.OrderRequestDto;
 import com.backstage.curtaincall.order.dto.OrderResponseDto;
 import com.backstage.curtaincall.order.dto.OrderSuccessResponseDto;
@@ -35,6 +36,13 @@ public class OrderController {
         // globalExceptionHandler 처리
         OrderSuccessResponseDto response = orderService.getOrderSuccess(orderId);
         return ResponseEntity.ok(response);
+    }
+
+    // 주문 내역 조회
+    @PostMapping("/history")
+    public ResponseEntity<List<OrderHistoryDto>> getOrderList(@RequestBody String email) {
+        List<OrderHistoryDto> responses = orderService.getOrderHistory(email);
+        return ResponseEntity.ok(responses);
     }
 
     // 주문 생성

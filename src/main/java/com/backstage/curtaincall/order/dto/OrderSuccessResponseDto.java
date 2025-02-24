@@ -18,6 +18,8 @@ public class OrderSuccessResponseDto {
 
     private String productName;
 
+    private String place;
+
     private LocalDate performanceDate;
 
     private Time performanceTime;
@@ -26,12 +28,13 @@ public class OrderSuccessResponseDto {
 
     private String imageUrl;
 
-    public static OrderSuccessResponseDto create(String orderNo, int orderPrice, List<String> seats, String productName, LocalDate performanceDate, Time performanceTime, String imageUrl) {
+    public static OrderSuccessResponseDto create(String orderNo, int orderPrice, List<String> seats, String productName, String place, LocalDate performanceDate, Time performanceTime, String imageUrl) {
         OrderSuccessResponseDto dto = new OrderSuccessResponseDto();
 
         dto.orderNo = orderNo;
         dto.orderPrice = orderPrice;
         dto.productName = productName;
+        dto.place = place;
         dto.performanceDate = performanceDate;
         dto.performanceTime = performanceTime;
         dto.seats = seats;

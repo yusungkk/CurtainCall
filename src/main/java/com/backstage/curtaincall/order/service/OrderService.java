@@ -2,10 +2,7 @@ package com.backstage.curtaincall.order.service;
 
 import com.backstage.curtaincall.global.exception.CustomErrorCode;
 import com.backstage.curtaincall.global.exception.CustomException;
-import com.backstage.curtaincall.order.dto.OrderDetailRequestDto;
-import com.backstage.curtaincall.order.dto.OrderRequestDto;
-import com.backstage.curtaincall.order.dto.OrderResponseDto;
-import com.backstage.curtaincall.order.dto.OrderSuccessResponseDto;
+import com.backstage.curtaincall.order.dto.*;
 import com.backstage.curtaincall.order.entity.Order;
 import com.backstage.curtaincall.order.entity.OrderDetail;
 import com.backstage.curtaincall.order.entity.Status;
@@ -75,9 +72,49 @@ public class OrderService {
         // 성공된 주문의 상품
         Product product = productDetail.getProduct();
         String productName = product.getProductName();
+        String place = product.getPlace();
         String imageUrl = product.getProductImage().getImageUrl();
 
-        return OrderSuccessResponseDto.create(findOrder.getOrderNo(), findPayment.getPrice(), orderSeats, productName, performanceDate, performanceTime, imageUrl);
+        return OrderSuccessResponseDto.create(findOrder.getOrderNo(), findPayment.getPrice(), orderSeats, productName, place, performanceDate, performanceTime, imageUrl);
+    }
+
+    // 주문 내역 조회
+    @Transactional(readOnly = true)
+    public List<OrderHistoryDto> getOrderHistory(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        User findUser = optionalUser.orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+        List<OrderHistoryDto> orderHistories = new ArrayList<>();
+        // 유저의 주문 내역
+        List<Order> findOrders = orderRepository.findByUser(findUser);
+        if (!findOrders.isEmpty()) {
+            for (Order order : findOrders) {
+                if (order.getStatus().equals(Status.CANCELED) || order.getStatus().equals(Status.PENDING)) {
+                    continue;
+                }
+                // 주문의 주문 상세
+                List<OrderDetail> orderDetails = order.getOrderDetails();
+
+                // 주문의 선택 좌석
+                List<String> orderSeats = new ArrayList<>();
+                for (OrderDetail orderDetail : orderDetails) {
+                    orderSeats.add(orderDetail.getSeat());
+                }
+
+                ProductDetail productDetail = orderDetails.get(0).getProductDetail();
+                LocalDate performanceDate = productDetail.getPerformanceDate();
+                Time performanceTime = productDetail.getTime();
+
+                Product product = productDetail.getProduct();
+                String productName = product.getProductName();
+                String imageUrl = product.getProductImage().getImageUrl();
+
+                OrderHistoryDto orderHistoryDto = OrderHistoryDto.create(order.getOrderNo(), order.getPrice(), orderSeats, performanceDate, performanceTime, productName, imageUrl);
+                orderHistories.add(orderHistoryDto);
+            }
+        }
+
+        return orderHistories;
     }
 
     // 주문 생성
@@ -136,7 +173,5 @@ public class OrderService {
         }
 
     }
-
-
 
 }
