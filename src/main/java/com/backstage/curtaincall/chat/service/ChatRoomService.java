@@ -26,13 +26,13 @@ public class ChatRoomService {
         return new ChatRoomDto(roomId, username, room.getAdminName());
     }
 
-    public List<ChatRoomDto> getAllRooms() {
-        return chatRoomRepository.findAll().stream()
+    public List<ChatRoomDto> getRooms(String active) {
+        return chatRoomRepository.findAllByRoomActive(active).stream()
                 .map(cr -> new ChatRoomDto(cr.getId(), cr.getUsername(), cr.getAdminName()))
                 .toList();
     }
 
-    public ChatRoomDto assignAdmin(String roomId, String adminName) {
+    public void assignAdmin(String roomId, String adminName) {
         ChatRoom chatRoom = chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(CustomErrorCode.CHAT_ROOM_NOT_FOUND));
 
@@ -40,7 +40,5 @@ public class ChatRoomService {
             chatRoom.enterAdmin(adminName);
             chatRoomRepository.save(chatRoom);
         }
-
-        return new ChatRoomDto(chatRoom.getId(), chatRoom.getUsername(), chatRoom.getAdminName());
     }
 }
