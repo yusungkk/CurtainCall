@@ -6,15 +6,24 @@ import com.backstage.curtaincall.product.dto.ProductDetailResponseDto;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import com.backstage.curtaincall.product.dto.ProductResponseDto;
 import com.backstage.curtaincall.product.service.ProductService;
+import com.backstage.curtaincall.recommend.controller.UserRecommendController;
+import com.backstage.curtaincall.recommend.service.UserRecommendService;
+import com.backstage.curtaincall.security.JwtUtil;
+import com.backstage.curtaincall.user.dto.response.UserResponse;
+import com.backstage.curtaincall.user.entity.User;
+import com.backstage.curtaincall.user.repository.UserRepository;
+import com.backstage.curtaincall.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
@@ -27,6 +36,10 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 public class ProductController {
 
     private final ProductService productService;
+    private final UserRecommendService userRecommendService;
+    private final UserService userService;
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
 
     // 상품 목록 조회 API (전체 조회)
     @GetMapping("/products")
@@ -43,7 +56,19 @@ public class ProductController {
 
     // 상품 목록 조회 API (단일 조회)
     @GetMapping("/products/{productId}")
-    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId) {
+    public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId, @CookieValue(value = "jwt", required = false) String token) {
+        if (token == null) {
+            throw new CustomException(CustomErrorCode.INVALID_TOKEN); // 401 에러 반환
+        }
+
+        String email = jwtUtil.extractEmail(token);
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+        userRecommendService.saveUserClickSequence(user.getId(), productId); // 연쇄 클릭 이벤트 저장 (이전 상품 → 현재 상품)
+
+        userRecommendService.saveUserClick(user.getId(), productId); // kafka에 클릭 이벤트 저장
+
         ProductResponseDto response = productService.getProduct(productId);
 
         return ResponseEntity.ok(response);
