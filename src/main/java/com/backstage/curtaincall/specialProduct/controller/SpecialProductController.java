@@ -33,10 +33,10 @@ public class SpecialProductController {
 
     // 메인화면
     // 캐싱된 특가상품 가져오기
-//    @GetMapping("/active")
-//    public List<SpecialProductDto> getActiveSpecialProducts() {
-//        return specialProductService.getActiveSpecialProducts();
-//    }
+    @GetMapping("/active")
+    public List<SpecialProductDto> getActiveSpecialProducts() {
+        return specialProductService.getActiveSpecialProducts();
+    }
 
     // 관리자화면
     // 페이지네이션과 이름 검색이 적용된 조회 API

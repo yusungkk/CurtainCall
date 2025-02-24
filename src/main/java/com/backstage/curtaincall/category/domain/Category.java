@@ -5,6 +5,7 @@ import com.backstage.curtaincall.category.dto.CategoryDto;
 import com.backstage.curtaincall.global.entity.BaseEntity;
 import com.backstage.curtaincall.product.entity.Product;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -45,15 +46,16 @@ public class Category extends BaseEntity {
     private Category parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnore
+//    @JsonIgnore
     @Builder.Default
     private List<Category> children = new ArrayList<>();
 
     @Column(name = "is_deleted")
     private boolean deleted = false;
 
-    @OneToMany(mappedBy = "category")
-    private List<Product> products = new ArrayList<>();
+//    @OneToMany(mappedBy = "category")
+//    @JsonIgnore
+//    private List<Product> products = new ArrayList<>();
 
     private Category(String name) {
         this.name = name;

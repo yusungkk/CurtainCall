@@ -87,6 +87,32 @@ public class SpecialProduct extends BaseEntity {
                 .build();
     }
 
+    public SpecialProductDto toUpdatedDto(Product updatedProduct) {
+        return SpecialProductDto.builder()
+                // SpecialProduct 정보
+                .specialProductId(this.id)
+                .discountRate(this.discountRate)
+                .discountStartDate(this.startDate)
+                .discountEndDate(this.endDate)
+                .status(this.status)
+
+                // 업데이트된 Product 정보 반영
+                .productId(updatedProduct.getProductId())
+                .productName(updatedProduct.getProductName())
+                .price(updatedProduct.getPrice())
+                .startDate(updatedProduct.getStartDate())
+                .endDate(updatedProduct.getEndDate())
+                .place(updatedProduct.getPlace())
+                .runningTime(updatedProduct.getRunningTime())
+                .casting(updatedProduct.getCasting())
+                .notice(updatedProduct.getNotice())
+
+                // ProductImage 정보
+                .imageUrl(updatedProduct.getProductImage() != null ? updatedProduct.getProductImage().getImageUrl() : null)
+
+                .build();
+    }
+
 
     public void update(SpecialProductDto dto) {
         this.discountRate = dto.getDiscountRate();
