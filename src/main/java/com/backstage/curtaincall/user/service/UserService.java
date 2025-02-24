@@ -12,6 +12,8 @@ import com.backstage.curtaincall.user.entity.RoleType;
 import com.backstage.curtaincall.user.entity.User;
 import com.backstage.curtaincall.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,9 +112,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserResponse> getAllUsers() {
-        List<User> users = userRepository.findAll();
-        return users.stream().map(UserResponse::new).toList();
+    public Page<UserResponse> getAllUsers(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+        return users.map(UserResponse::new);
     }
 
     @Transactional
@@ -125,5 +127,11 @@ public class UserService {
     public void deactivateUser(Long id) {
         User user = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
         user.deactivate();
+    }
+
+    @Transactional(readOnly = true)
+    public Page<UserResponse> searchUsers(String keyword, Pageable pageable) {
+        Page<User> users = userRepository.findByNameContainingOrEmailContaining(keyword, keyword, pageable);
+        return users.map(UserResponse::new);
     }
 }
