@@ -1,7 +1,6 @@
 package com.backstage.curtaincall.specialProduct.config;
 
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
-import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -65,4 +64,13 @@ public class RedisConfig {
 
         return template;
     }
+
+//    @Bean
+//    public RedisTemplate<String, Object> redisTemplate() {
+//        RedisTemplate<String, Object> template = new RedisTemplate<>();
+//        template.setConnectionFactory(redisConnectionFactory());
+//        template.setKeySerializer(new StringRedisSerializer()); // 문자열 직렬화
+//        template.setValueSerializer(new StringRedisSerializer());
+//        return template;
+//    }
 }
