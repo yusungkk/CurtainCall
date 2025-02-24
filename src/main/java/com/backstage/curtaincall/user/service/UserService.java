@@ -83,7 +83,11 @@ public class UserService {
             throw new CustomException(CustomErrorCode.INVALID_PASSWORD);
         }
 
-        String token = jwtUtil.generateToken(user.getEmail());
+        if(!user.isActive()) {
+            throw new CustomException(CustomErrorCode.USER_NOT_FOUND);
+        }
+
+        String token = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
 
         return new LoginResponse(user.getRole(), token);
     }
@@ -109,5 +113,17 @@ public class UserService {
     public List<UserResponse> getAllUsers() {
         List<User> users = userRepository.findAll();
         return users.stream().map(UserResponse::new).toList();
+    }
+
+    @Transactional
+    public void activateUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        user.activate();
+    }
+
+    @Transactional
+    public void deactivateUser(Long id) {
+        User user = userRepository.findById(id).orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+        user.deactivate();
     }
 }

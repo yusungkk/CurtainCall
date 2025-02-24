@@ -37,7 +37,7 @@ public class Order extends BaseEntity {
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
-    public void setStatus(Status status) {
+    public void updateStatus(Status status) {
         this.status = status;
     }
 }

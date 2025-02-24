@@ -3,7 +3,10 @@ package com.backstage.curtaincall.product.entity;
 import com.backstage.curtaincall.category.domain.Category;
 import com.backstage.curtaincall.global.entity.BaseEntity;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -54,11 +57,13 @@ public class Product extends BaseEntity {
     @OneToOne(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private ProductImage productImage;
 
+    //특가상품
+    @OneToMany(mappedBy = "product")
+    private Set<SpecialProduct> specialProducts = new HashSet<>();
+
     public void update(ProductRequestDto request) {
         this.productName = request.getProductName();
         this.place = request.getPlace();
-        this.startDate = request.getStartDate();
-        this.endDate = request.getEndDate();
         this.runningTime = request.getRunningTime();
         this.price = request.getPrice();
         this.casting = request.getCasting();
@@ -69,11 +74,11 @@ public class Product extends BaseEntity {
         this.productImage = image;
     }
 
-    public void setSalesCount(long salesCount) {
-        this.salesCount = salesCount;
-    }
-
     public void updateCategory(Category category) {
         this.category = category;
+    }
+
+    public void updateSalesCount(long updatedSalesCount) {
+        this.salesCount = updatedSalesCount;
     }
 }
