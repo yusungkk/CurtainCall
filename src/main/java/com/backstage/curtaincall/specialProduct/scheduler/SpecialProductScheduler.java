@@ -1,9 +1,7 @@
-package com.backstage.curtaincall.specialProduct.service;
+package com.backstage.curtaincall.specialProduct.scheduler;
 
 
-import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 

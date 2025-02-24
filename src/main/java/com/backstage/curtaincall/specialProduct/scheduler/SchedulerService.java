@@ -1,7 +1,8 @@
-package com.backstage.curtaincall.specialProduct.service;
+package com.backstage.curtaincall.specialProduct.scheduler;
 
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
+import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
