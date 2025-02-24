@@ -16,7 +16,6 @@ import com.backstage.curtaincall.product.entity.ProductImage;
 import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
-import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
@@ -225,10 +224,10 @@ public class ProductService {
         for (SpecialProduct sp : specialProducts) {
             if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
                 // 캐시 반영하여 변경
-                specialProductService.update(sp.toUpdatedDto(product));
+                specialProductService.updateWithCache(sp.toUpdatedDto(product));
             } else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
                 // 캐시를 조회하지 않고 변경
-                specialProductService.updateNotCache(sp.toUpdatedDto(product));
+                specialProductService.updateWithOutCache(sp.toUpdatedDto(product));
             }
         }
         
@@ -246,11 +245,11 @@ public class ProductService {
         for (SpecialProduct sp : specialProducts) {
             if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
                 // 캐시 반영해서 삭제
-                specialProductService.delete(sp.getId());
+                specialProductService.deleteWithCache(sp.getId());
             }
             else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
                 // 캐시를 조회하지 않고 삭제
-                specialProductService.deleteNotCache(sp.getId());
+                specialProductService.deleteWithOutCache(sp.getId());
             }
         }
 

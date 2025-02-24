@@ -2,11 +2,10 @@ package com.backstage.curtaincall.specialProduct.controller;
 
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
+import com.backstage.curtaincall.specialProduct.service.SpecialProductUpdater;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SpecialProductController {
 
     private final SpecialProductService specialProductService;
+    private final SpecialProductUpdater specialProductUpdater;
 
 
     // 전체 조회
@@ -68,14 +68,14 @@ public class SpecialProductController {
 
     // 수정
     @PutMapping
-    public SpecialProductDto update(@RequestBody SpecialProductDto dto) {
-        return specialProductService.update(dto);
+    public void update(@RequestBody SpecialProductDto dto) {
+        specialProductUpdater.update(dto);
     }
 
     // 삭제 (소프트 삭제)
     @DeleteMapping("/{id}")
     public void delete(@PathVariable Long id) {
-        specialProductService.delete(id);
+        specialProductService.deleteWithCache(id);
     }
 
     // 승인

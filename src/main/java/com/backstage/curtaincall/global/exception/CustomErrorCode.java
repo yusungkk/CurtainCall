@@ -50,6 +50,7 @@
             DISCOUNT_PERIOD_EXPIRED(HttpStatus.BAD_REQUEST, "할인 종료일이 이미 지났습니다."),
             DISCOUNT_END_DATE_BEFORE_START(HttpStatus.BAD_REQUEST,"할인 종료일은 할인 시작일보다 이후여야 합니다."),
             ALREADY_ACTIVE_SPECIAL_PRODUCT_EXISTS(HttpStatus.BAD_REQUEST,"해당 상품은 이미 할인중입니다."),
+            CANNOT_UPDATE_DELETED_SPECIAL_PRODUCT(HttpStatus.BAD_REQUEST, "삭제된 특가상품은 수정할 수 없습니다."),
 
 
             // 추가적인 글로벌 에러 코드

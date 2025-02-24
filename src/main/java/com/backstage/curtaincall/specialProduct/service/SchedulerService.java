@@ -29,7 +29,7 @@ public class SchedulerService {
 
             // 2. 만료된 상품 Redis 캐시와 DB에서 삭제
             for (Long spId : expiredSpecialProductIds) {
-                specialProductService.delete(spId);
+                specialProductService.deleteWithCache(spId);
             }
 
         }

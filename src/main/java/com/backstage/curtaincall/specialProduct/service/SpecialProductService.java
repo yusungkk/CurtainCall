@@ -13,6 +13,7 @@ import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.repository.ProductRepository;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
+import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -129,7 +130,7 @@ public class SpecialProductService {
     // 수정: 캐시 반영 O
     @Transactional
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #dto.specialProductId", cacheManager = "cacheManager")
-    public SpecialProductDto update(SpecialProductDto dto) {
+    public SpecialProductDto updateWithCache(SpecialProductDto dto) {
 
         validate(dto);
 
@@ -141,7 +142,7 @@ public class SpecialProductService {
 
     // 수정: 캐시 업데이트 반영 X
     @Transactional
-    public void updateNotCache(SpecialProductDto dto) {
+    public void updateWithOutCache(SpecialProductDto dto) {
         validate(dto);
 
         SpecialProduct sp = specialProductRepository.findById(dto.getSpecialProductId())
@@ -154,7 +155,7 @@ public class SpecialProductService {
     // Soft 삭제 : 캐시 반영 O
     @Transactional
     @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
-    public SpecialProductDto delete(Long id) {
+    public SpecialProductDto deleteWithCache(Long id) {
         SpecialProduct sp = specialProductRepository.findById(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.delete();
@@ -163,7 +164,7 @@ public class SpecialProductService {
 
     // Soft 삭제 : 캐시 반영 X
     @Transactional
-    public void deleteNotCache(Long id) {
+    public void deleteWithOutCache(Long id) {
         SpecialProduct sp = specialProductRepository.findById(id)
                 .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.delete();
