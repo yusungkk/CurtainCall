@@ -19,6 +19,7 @@ import com.backstage.curtaincall.specialProduct.repository.SpecialProductReposit
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -64,9 +65,10 @@ public class SpecialProductService {
         // Redis에서 모든 활성화된 특가 상품 키 가져오기
         Set<String> keys = redisTemplate.keys("specialProductCache::specialProduct:*");
 
-        if (keys != null && !keys.isEmpty()) {
+        if (!keys.isEmpty()) {
             List<SpecialProductDto> cachedProducts = keys.stream()
                     .map(valueOps::get)
+                    .filter(Objects::nonNull)
                     .toList();
 
             if (!cachedProducts.isEmpty()) {

@@ -103,7 +103,7 @@ public class ProductService {
         Optional<ProductDetail> optionalProduct = productDetailRepository.findById(id);
         ProductDetail findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
-        return ProductResponseDto.fromEntity(findProduct.getProduct());
+        return ProductResponseDto.of(findProduct.getProduct());
     }
 
     @Transactional(readOnly = true)
@@ -113,7 +113,6 @@ public class ProductService {
 
         return ProductDetailResponseDto.fromEntity(findProduct);
     }
-
 
     // 상품 등록
     @Transactional
