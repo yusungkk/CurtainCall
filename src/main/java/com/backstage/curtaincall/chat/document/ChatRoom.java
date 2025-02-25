@@ -39,4 +39,8 @@ public class ChatRoom {
         this.adminName = adminName;
         this.roomActive = WITH_ADMIN;
     }
+
+    public void endRoom() {
+        this.roomActive = RoomActive.END;
+    }
 }
