@@ -57,17 +57,14 @@ public class ProductController {
     // 상품 목록 조회 API (단일 조회)
     @GetMapping("/products/{productId}")
     public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId, @CookieValue(value = "jwt", required = false) String token) {
-        if (token == null) {
-            throw new CustomException(CustomErrorCode.INVALID_TOKEN); // 401 에러 반환
+        if (token != null) {
+            String email = jwtUtil.extractEmail(token);
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+            userRecommendService.saveUserClickSequence(user.getId(), productId); // 연쇄 클릭 이벤트 저장
+            userRecommendService.saveUserClick(user.getId(), productId); // kafka 클릭 이벤트 저장
         }
-
-        String email = jwtUtil.extractEmail(token);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-
-        userRecommendService.saveUserClickSequence(user.getId(), productId); // 연쇄 클릭 이벤트 저장 (이전 상품 → 현재 상품)
-
-        userRecommendService.saveUserClick(user.getId(), productId); // kafka에 클릭 이벤트 저장
 
         ProductResponseDto response = productService.getProduct(productId);
 
