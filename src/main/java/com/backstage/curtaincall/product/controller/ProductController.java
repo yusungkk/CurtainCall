@@ -6,6 +6,9 @@ import com.backstage.curtaincall.product.dto.ProductDetailResponseDto;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import com.backstage.curtaincall.product.dto.ProductResponseDto;
 import com.backstage.curtaincall.product.service.ProductService;
+import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
+import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,6 +30,14 @@ import static org.springframework.http.HttpStatus.NO_CONTENT;
 public class ProductController {
 
     private final ProductService productService;
+
+
+    // 특가 상품 창에서 상품 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<SpecialProductDto>> searchProducts(@RequestParam String keyword) {
+        List<SpecialProductDto> products = productService.searchProductsByKeyword(keyword);
+        return ResponseEntity.ok(products);
+    }
 
     // 상품 목록 조회 API (전체 조회)
     @GetMapping("/products")

@@ -1,6 +1,7 @@
 package com.backstage.curtaincall.product.repository;
 
 import com.backstage.curtaincall.product.entity.Product;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,5 +20,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "LEFT JOIN FETCH p.productImage pi " +
             "WHERE p.productId = :productId")
     Optional<Product> findAllWithoutDetails(@Param("productId") Long productId);
+
+    // 상품 이름으로 검색
+    List<Product> findByProductNameContaining(String keyword);
 
 }

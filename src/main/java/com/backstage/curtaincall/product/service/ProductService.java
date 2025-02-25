@@ -16,11 +16,13 @@ import com.backstage.curtaincall.product.entity.ProductImage;
 import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
+import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.handler.SpecialProductDeleteHandler;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import com.backstage.curtaincall.specialProduct.handler.SpecialProductUpdateHandler;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +50,16 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
     private final SpecialProductUpdateHandler specialProductUpdateHandler;
     private final SpecialProductDeleteHandler specialProductDeleteHandler;
+
+
+    @Transactional(readOnly = true)
+    public List<SpecialProductDto> searchProductsByKeyword(String keyword) {
+        return productRepository.findByProductNameContaining(keyword)
+                .stream()
+                .map(SpecialProductDto::of)
+                .collect(Collectors.toList());
+    }
+
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
