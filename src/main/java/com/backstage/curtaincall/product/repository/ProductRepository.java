@@ -13,6 +13,7 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findAll(Pageable pageable);
 
+    @Query("select p from Product p where p.productName = :productName and p.endDate >= CURRENT_DATE ")
     Page<Product> findByProductNameContaining(String productName, Pageable pageable);
 
     @Query("SELECT DISTINCT p FROM Product p " +
@@ -24,4 +25,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
 
     List<Product> findTop5ByCategoryIdOrderBySalesCountDesc(Long mostClickedCategory);
+
+    @Query("select p from Product p join p.category c1 join c1.parent c2 where c2.name = :genre and p.endDate >= CURRENT_DATE ")
+    Page<Product> findByCategoryName(String genre, Pageable pageable);
 }

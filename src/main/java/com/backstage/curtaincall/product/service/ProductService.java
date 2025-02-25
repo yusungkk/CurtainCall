@@ -17,7 +17,6 @@ import com.backstage.curtaincall.product.repository.ProductDetailRepository;
 import com.backstage.curtaincall.product.repository.ProductImageRepository;
 import com.backstage.curtaincall.product.repository.ProductRepository;
 import com.backstage.curtaincall.recommend.service.UserRecommendService;
-import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
@@ -83,11 +82,16 @@ public class ProductService {
 
 
     @Transactional(readOnly = true)
-    public Page<ProductResponseDto> searchProductsByProductName(String keyword, int page, int size, String sortBy, String direction) {
+    public Page<ProductResponseDto> searchProducts(String keyword, String genre, int page, int size, String sortBy, String direction) {
         Pageable pageable = sortPage(page, size, sortBy, direction);
 
-        return productRepository.findByProductNameContaining(keyword, pageable)
-                .map(ProductResponseDto::fromEntity);
+        if (genre.isEmpty()) {
+            return productRepository.findByProductNameContaining(keyword, pageable)
+                    .map(ProductResponseDto::fromEntity);
+        } else {
+            return productRepository.findByCategoryName(genre, pageable)
+                    .map(ProductResponseDto::fromEntity);
+        }
     }
 
     private Pageable sortPage(int page, int size, String sortBy, String direction) {

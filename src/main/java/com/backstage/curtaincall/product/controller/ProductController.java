@@ -6,10 +6,8 @@ import com.backstage.curtaincall.product.dto.ProductDetailResponseDto;
 import com.backstage.curtaincall.product.dto.ProductRequestDto;
 import com.backstage.curtaincall.product.dto.ProductResponseDto;
 import com.backstage.curtaincall.product.service.ProductService;
-import com.backstage.curtaincall.recommend.controller.UserRecommendController;
 import com.backstage.curtaincall.recommend.service.UserRecommendService;
 import com.backstage.curtaincall.security.JwtUtil;
-import com.backstage.curtaincall.user.dto.response.UserResponse;
 import com.backstage.curtaincall.user.entity.User;
 import com.backstage.curtaincall.user.repository.UserRepository;
 import com.backstage.curtaincall.user.service.UserService;
@@ -17,13 +15,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
@@ -75,14 +71,15 @@ public class ProductController {
     }
 
     @GetMapping("/products/search")
-    public ResponseEntity<Page<ProductResponseDto>> getProductsByProductName(
-            @RequestParam String keyword,
+    public ResponseEntity<Page<ProductResponseDto>> getProductsBySearch(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String genre,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String sortBy,
             @RequestParam(defaultValue = "asc") String direction) {
 
-        Page<ProductResponseDto> response = productService.searchProductsByProductName(keyword, page, size, sortBy, direction);
+        Page<ProductResponseDto> response = productService.searchProducts(keyword, genre, page, size, sortBy, direction);
 
         return ResponseEntity.ok(response);
     }
