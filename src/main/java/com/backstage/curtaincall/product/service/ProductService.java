@@ -69,8 +69,6 @@ public class ProductService {
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final UserRecommendService userRecommendService;
 
-    private final SpecialProductService specialProductService;
-
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
         Pageable pageable = sortPage(page, size, sortBy, direction);
