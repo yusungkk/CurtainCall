@@ -19,10 +19,13 @@ public class CustomExHandler {
     // @Valid 검증 실패 처리
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CustomExResponse> handleValidationExceptions(MethodArgumentNotValidException ex) {
+
+
         BindingResult bindingResult = ex.getBindingResult();
         String errorMessage = bindingResult.getFieldError() != null
                 ? bindingResult.getFieldError().getDefaultMessage()
                 : "유효성 검증 실패";
+        log.error(" @Valid 검증 실패 처리: {}", errorMessage);
         return CustomExResponse.toResponse(CustomErrorCode.VALIDATION_ERROR, errorMessage);
     }
 

@@ -2,7 +2,7 @@ package com.backstage.curtaincall.specialProduct.service;
 
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.ALREADY_ACTIVE_SPECIAL_PRODUCT_EXISTS;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUNT_END_DATE_BEFORE_START;
-import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUNT_PERIOD_EXPIRED;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.CANNOT_APPLY_DISCOUNT_FOR_PAST_DATE;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUNT_PERIOD_OUT_OF_PRODUCT_RANGE;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.OVERLAPPING_SPECIAL_PRODUCT_DISCOUNT;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.PRODUCT_NOT_FOUND;
@@ -14,7 +14,6 @@ import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.product.repository.ProductRepository;
 import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
-import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import com.backstage.curtaincall.specialProduct.repository.SpecialProductRepository;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -32,7 +31,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -176,9 +174,9 @@ public class SpecialProductService {
 
         // 이미 같은 Product에 ACTIVE 상태의 특가 상품이 있는지 확인
         validateAlreadyActiveProduct(sp.getProduct().getProductId());
-        
-        // 할인 종료일이 이미 지난 경우 예외 발생
+        //할인 종료일이 오늘보다 적으면 오류발생
         validateDiscountExpired(sp.getEndDate());
+
         sp.approve();
         return sp.toDto();
     }
@@ -205,6 +203,8 @@ public class SpecialProductService {
     }
 
     public void validate(SpecialProductDto dto) {
+        //할인 종료일이 오늘보다 적으면 오류발생
+        validateDiscountExpired(dto.getDiscountEndDate());
         // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
         validateOverDate(dto);
         //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
@@ -215,7 +215,7 @@ public class SpecialProductService {
 
     private void validateDiscountExpired(LocalDate discountEndDate) {
         if (LocalDate.now().isAfter(discountEndDate)) {
-            throw new CustomException(DISCOUNT_PERIOD_EXPIRED);
+            throw new CustomException(CANNOT_APPLY_DISCOUNT_FOR_PAST_DATE);
         }
     }
 

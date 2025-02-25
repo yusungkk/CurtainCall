@@ -4,9 +4,11 @@ import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
 import com.backstage.curtaincall.specialProduct.handler.SpecialProductDeleteHandler;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import com.backstage.curtaincall.specialProduct.handler.SpecialProductUpdateHandler;
+import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -64,13 +66,13 @@ public class SpecialProductController {
 
     // 생성
     @PostMapping
-    public SpecialProductDto save(@RequestBody SpecialProductDto dto) {
+    public SpecialProductDto save(@Valid @RequestBody SpecialProductDto dto) {
         return specialProductService.save(dto);
     }
 
     // 수정
     @PutMapping
-    public void update(@RequestBody SpecialProductDto dto) {
+    public void update(@Valid @RequestBody SpecialProductDto dto) {
         specialProductUpdateHandler.update(dto);
     }
 
