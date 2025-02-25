@@ -44,8 +44,6 @@ public class SpecialProduct extends BaseEntity {
 
     private LocalDate endDate; // 할인 종료 날짜
 
-//    @Column(name = "is_deleted")
-//    private boolean deleted = false;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
     private SpecialProductStatus status;

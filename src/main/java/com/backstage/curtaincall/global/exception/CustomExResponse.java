@@ -1,10 +1,11 @@
 package com.backstage.curtaincall.global.exception;
 
-import lombok.Builder;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 
 @RequiredArgsConstructor
+@Getter
 public class CustomExResponse {
 
     private final int statusCode;

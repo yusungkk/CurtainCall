@@ -47,9 +47,12 @@
             SPECIAL_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "해당 특가상품을 찾을 수 없습니다."),
             DISCOUNT_PERIOD_OUT_OF_PRODUCT_RANGE(HttpStatus.BAD_REQUEST, "할인 기간이 상품의 공연 기간을 벗어났습니다."),
             OVERLAPPING_SPECIAL_PRODUCT_DISCOUNT(HttpStatus.BAD_REQUEST, "동일한 상품에 중복된 할인 기간이 존재합니다."),
-            DISCOUNT_PERIOD_EXPIRED(HttpStatus.BAD_REQUEST, "할인 종료일이 이미 지났습니다."),
+            CANNOT_APPLY_DISCOUNT_FOR_PAST_DATE(HttpStatus.BAD_REQUEST, "지난 날짜에는 할인을 적용할 수 없습니다."),
             DISCOUNT_END_DATE_BEFORE_START(HttpStatus.BAD_REQUEST,"할인 종료일은 할인 시작일보다 이후여야 합니다."),
             ALREADY_ACTIVE_SPECIAL_PRODUCT_EXISTS(HttpStatus.BAD_REQUEST,"해당 상품은 이미 할인중입니다."),
+            CANNOT_UPDATE_DELETED_SPECIAL_PRODUCT(HttpStatus.BAD_REQUEST, "삭제된 특가상품은 수정할 수 없습니다."),
+            UPCOMING_SPECIAL_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "할인 예정 상태인 특가상품을 찾을 수 없습니다."),
+
 
 
             // 추가적인 글로벌 에러 코드
