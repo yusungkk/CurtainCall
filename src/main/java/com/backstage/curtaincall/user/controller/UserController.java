@@ -64,7 +64,7 @@ public class UserController {
 
             Cookie cookie = new Cookie("jwt", loginResponse.getToken());
             cookie.setHttpOnly(true);
-            cookie.setSecure(true);
+            cookie.setSecure(false);
             cookie.setPath("/");
             cookie.setMaxAge(60 * 30);
             response.addCookie(cookie);
@@ -90,7 +90,7 @@ public class UserController {
 
         Cookie cookie = new Cookie("jwt", null);
         cookie.setHttpOnly(true);
-        cookie.setSecure(true);
+        cookie.setSecure(false);
         cookie.setPath("/");
         cookie.setMaxAge(0);
         response.addCookie(cookie);
