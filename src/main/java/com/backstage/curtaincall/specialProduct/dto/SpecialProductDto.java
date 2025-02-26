@@ -1,7 +1,6 @@
 package com.backstage.curtaincall.specialProduct.dto;
 
-import com.backstage.curtaincall.product.entity.Dates;
-import com.backstage.curtaincall.product.entity.Time;
+import com.backstage.curtaincall.product.entity.Product;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -42,9 +41,18 @@ public class SpecialProductDto {
     //ProductImage 정보
     private String imageUrl;
 
-    // ProductDetail 정보
-//    private Dates dates;
-//    private Time time;
-//    private LocalDate performanceDate; //해당 공연날짜
 
+    
+     //Product 엔티티를 SpecialProductDto로 변환하는 메서드
+    public static SpecialProductDto of(Product product) {
+        return SpecialProductDto.builder()
+                .productId(product.getProductId())
+                .productName(product.getProductName())
+                .price(product.getPrice())
+                .startDate(product.getStartDate())
+                .endDate(product.getEndDate())
+                .place(product.getPlace())
+                .runningTime(product.getRunningTime())
+                .build();
+    }
 }

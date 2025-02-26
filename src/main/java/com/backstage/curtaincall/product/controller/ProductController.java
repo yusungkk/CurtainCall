@@ -11,6 +11,9 @@ import com.backstage.curtaincall.security.JwtUtil;
 import com.backstage.curtaincall.user.entity.User;
 import com.backstage.curtaincall.user.repository.UserRepository;
 import com.backstage.curtaincall.user.service.UserService;
+import com.backstage.curtaincall.specialProduct.dto.SpecialProductDto;
+import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -37,6 +40,14 @@ public class ProductController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
+
+    // 특가 상품 창에서 상품 검색
+    @GetMapping("/search")
+    public ResponseEntity<List<SpecialProductDto>> searchProducts(@RequestParam String keyword) {
+        List<SpecialProductDto> products = productService.searchProductsByKeyword(keyword);
+        return ResponseEntity.ok(products);
+    }
+
     // 상품 목록 조회 API (전체 조회)
     @GetMapping("/products")
     public ResponseEntity<Page<ProductResponseDto>> getProducts(
@@ -53,17 +64,14 @@ public class ProductController {
     // 상품 목록 조회 API (단일 조회)
     @GetMapping("/products/{productId}")
     public ResponseEntity<ProductResponseDto> getProduct(@PathVariable Long productId, @CookieValue(value = "jwt", required = false) String token) {
-        if (token == null) {
-            throw new CustomException(CustomErrorCode.INVALID_TOKEN); // 401 에러 반환
+        if (token != null) {
+            String email = jwtUtil.extractEmail(token);
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
+
+            userRecommendService.saveUserClickSequence(user.getId(), productId); // 연쇄 클릭 이벤트 저장
+            userRecommendService.saveUserClick(user.getId(), productId); // kafka 클릭 이벤트 저장
         }
-
-        String email = jwtUtil.extractEmail(token);
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(CustomErrorCode.USER_NOT_FOUND));
-
-        userRecommendService.saveUserClickSequence(user.getId(), productId); // 연쇄 클릭 이벤트 저장 (이전 상품 → 현재 상품)
-
-        userRecommendService.saveUserClick(user.getId(), productId); // kafka에 클릭 이벤트 저장
 
         ProductResponseDto response = productService.getProduct(productId);
 

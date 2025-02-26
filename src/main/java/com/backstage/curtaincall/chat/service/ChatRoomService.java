@@ -41,4 +41,12 @@ public class ChatRoomService {
             chatRoomRepository.save(chatRoom);
         }
     }
+
+    public void endChatRoom(String roomId) {
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(CustomErrorCode.CHAT_ROOM_NOT_FOUND));
+
+        chatRoom.endRoom();
+        chatRoomRepository.save(chatRoom);
+    }
 }

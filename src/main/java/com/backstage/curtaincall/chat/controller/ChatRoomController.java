@@ -1,11 +1,16 @@
 package com.backstage.curtaincall.chat.controller;
 
 
+import com.backstage.curtaincall.chat.document.RoomActive;
+import com.backstage.curtaincall.chat.dto.ChatMessageDto;
 import com.backstage.curtaincall.chat.dto.ChatRoomDto;
 import com.backstage.curtaincall.chat.service.ChatRoomService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,10 +21,11 @@ import java.util.List;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
+    private final SimpMessagingTemplate template;
 
     @PostMapping("/create")
-    public ResponseEntity<ChatRoomDto> createChatRoom(@RequestParam String user) {
-        ChatRoomDto chatRoom = chatRoomService.createChatRoom(user);
+    public ResponseEntity<ChatRoomDto> createChatRoom(@AuthenticationPrincipal UserDetails userDetails) {
+        ChatRoomDto chatRoom = chatRoomService.createChatRoom(userDetails.getUsername());
         return ResponseEntity.ok(chatRoom);
     }
 
@@ -31,7 +37,16 @@ public class ChatRoomController {
 
     @PatchMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void assignAgent(@RequestParam String roomId) {
-        chatRoomService.assignAdmin(roomId, "admin");
+    public void updateRoomActive(@RequestParam String roomId, @RequestParam String active) {
+
+        if (active.equals(RoomActive.WITH_ADMIN.name())) {
+            chatRoomService.assignAdmin(roomId, "admin");
+            template.convertAndSend("/queue/chat/" + roomId, ChatMessageDto.enterAdminMessage(roomId));
+        }
+
+        if (active.equals(RoomActive.END.name())) {
+            chatRoomService.endChatRoom(roomId);
+            template.convertAndSend("/queue/chat/" + roomId, ChatMessageDto.endRoomMessage(roomId));
+        }
     }
 }

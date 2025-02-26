@@ -19,7 +19,10 @@ import com.backstage.curtaincall.product.repository.ProductRepository;
 import com.backstage.curtaincall.recommend.service.UserRecommendService;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProduct;
 import com.backstage.curtaincall.specialProduct.entity.SpecialProductStatus;
+import com.backstage.curtaincall.specialProduct.handler.SpecialProductDeleteHandler;
 import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
+import com.backstage.curtaincall.specialProduct.handler.SpecialProductUpdateHandler;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -48,12 +51,22 @@ public class ProductService {
     private final ProductImageRepository productImageRepository;
     private final S3Service s3Service;
     private final CategoryRepository categoryRepository;
+    private final SpecialProductUpdateHandler specialProductUpdateHandler;
+    private final SpecialProductDeleteHandler specialProductDeleteHandler;
+
+
+    @Transactional(readOnly = true)
+    public List<SpecialProductDto> searchProductsByKeyword(String keyword) {
+        return productRepository.findByProductNameContaining(keyword)
+                .stream()
+                .map(SpecialProductDto::of)
+                .collect(Collectors.toList());
+    }
+
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final UserRecommendService userRecommendService;
-
-    private final SpecialProductService specialProductService;
 
     @Transactional(readOnly = true)
     public Page<ProductResponseDto> getAllProducts(int page, int size, String sortBy, String direction) {
@@ -114,7 +127,7 @@ public class ProductService {
         Optional<ProductDetail> optionalProduct = productDetailRepository.findById(id);
         ProductDetail findProduct = optionalProduct.orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
-        return ProductResponseDto.fromEntity(findProduct.getProduct());
+        return ProductResponseDto.of(findProduct.getProduct());
     }
 
     @Transactional(readOnly = true)
@@ -124,7 +137,6 @@ public class ProductService {
 
         return ProductDetailResponseDto.fromEntity(findProduct);
     }
-
 
     // 상품 등록
     @Transactional
@@ -232,19 +244,7 @@ public class ProductService {
         }
 
         //특가 상품 변경
-        List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
-
-        // 연관된 SpecialProduct 변경
-        for (SpecialProduct sp : specialProducts) {
-            if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
-                // 캐시 반영하여 변경
-                specialProductService.update(sp.toUpdatedDto(product));
-            } else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
-                // 캐시를 조회하지 않고 변경
-                specialProductService.updateNotCache(sp.toUpdatedDto(product));
-            }
-        }
-
+        specialProductUpdateHandler.updateAllByProduct(productId, product);
         return ProductResponseDto.fromEntity(product);
     }
 
@@ -255,18 +255,7 @@ public class ProductService {
                 .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));
 
         // 연관된 SpecialProduct 삭제
-        List<SpecialProduct> specialProducts = specialProductService.findAllByProductId(productId);
-        for (SpecialProduct sp : specialProducts) {
-            if (sp.getStatus() == SpecialProductStatus.ACTIVE) {
-                // 캐시 반영해서 삭제
-                specialProductService.delete(sp.getId());
-            }
-            else if (sp.getStatus() == SpecialProductStatus.UPCOMING) {
-                // 캐시를 조회하지 않고 삭제
-                specialProductService.deleteNotCache(sp.getId());
-            }
-        }
-
+        specialProductDeleteHandler.deleteAllByProduct(productId);
 
         // S3 및 DB에서 이미지 삭제
         ProductImage productImage = product.getProductImage();

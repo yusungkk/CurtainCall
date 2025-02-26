@@ -125,9 +125,10 @@ public class OrderService {
     // 주문 생성
     @Transactional
     public OrderResponseDto createOrder(OrderRequestDto requestDto) {
-        // 동시에 결제 페이지에 들어왔을 경우, 결제하기 버튼을 먼저 누른 사용자가 좌석 선점
-        List<String> reservedSeats = orderDetailRepository.findReservedSeats(requestDto.getProductDetailId(), requestDto.getSelectedSeats());
+        List<String> getSelectedSeats = requestDto.getSelectedSeats();
+        List<String> reservedSeats = orderDetailRepository.findReservedSeats(requestDto.getProductDetailId(), getSelectedSeats);
 
+        // 동시에 결제 페이지에 들어왔을 경우, 결제하기 버튼을 먼저 누른 사용자가 좌석 선점
         if (!reservedSeats.isEmpty()) {
             throw new CustomException(CustomErrorCode.SEAT_ALREADY_RESERVED);
         }
@@ -139,7 +140,7 @@ public class OrderService {
         Order order = requestDto.toOrder(user);
         orderRepository.save(order);
 
-        List<OrderDetail> orderDetails = requestDto.getSelectedSeats().stream()
+        List<OrderDetail> orderDetails = getSelectedSeats.stream()
                 .map(seat -> {
                     ProductDetail productDetail = productDetailRepository.findById(requestDto.getProductDetailId())
                             .orElseThrow(() -> new CustomException(CustomErrorCode.PRODUCT_NOT_FOUND));

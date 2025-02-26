@@ -46,7 +46,7 @@ public class Product extends BaseEntity {
 
     private String casting;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 1000)
     private String notice;
 
     private Long salesCount;    // 총 판매량

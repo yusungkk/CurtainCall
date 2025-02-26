@@ -2,11 +2,12 @@ package com.backstage.curtaincall.specialProduct.service;
 
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.ALREADY_ACTIVE_SPECIAL_PRODUCT_EXISTS;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUNT_END_DATE_BEFORE_START;
-import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUNT_PERIOD_EXPIRED;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.CANNOT_APPLY_DISCOUNT_FOR_PAST_DATE;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.DISCOUNT_PERIOD_OUT_OF_PRODUCT_RANGE;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.OVERLAPPING_SPECIAL_PRODUCT_DISCOUNT;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.PRODUCT_NOT_FOUND;
 import static com.backstage.curtaincall.global.exception.CustomErrorCode.SPECIAL_PRODUCT_NOT_FOUND;
+import static com.backstage.curtaincall.global.exception.CustomErrorCode.UPCOMING_SPECIAL_PRODUCT_NOT_FOUND;
 
 import com.backstage.curtaincall.global.exception.CustomException;
 import com.backstage.curtaincall.product.entity.Product;
@@ -17,6 +18,7 @@ import com.backstage.curtaincall.specialProduct.repository.SpecialProductReposit
 import java.time.Duration;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +42,12 @@ public class SpecialProductService {
     private final ProductRepository productRepository; // Product 조회용
     private final RedisTemplate<String, SpecialProductDto> redisTemplate;
 
+    //단건조회(삭제되지 않은 것만)
+    public SpecialProduct findById(Long id){
+        return specialProductRepository.findById(id)
+                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+    }
+
     // 전체 조회
     public List<SpecialProductDto> findAll(){
         List<SpecialProduct> specialProducts = specialProductRepository.findAll();
@@ -55,9 +63,10 @@ public class SpecialProductService {
         // Redis에서 모든 활성화된 특가 상품 키 가져오기
         Set<String> keys = redisTemplate.keys("specialProductCache::specialProduct:*");
 
-        if (keys != null && !keys.isEmpty()) {
+        if (!keys.isEmpty()) {
             List<SpecialProductDto> cachedProducts = keys.stream()
                     .map(valueOps::get)
+                    .filter(Objects::nonNull)
                     .toList();
 
             if (!cachedProducts.isEmpty()) {
@@ -125,28 +134,17 @@ public class SpecialProductService {
         return sp.toDto();
     }
 
-
     // 수정: 캐시 반영 O
     @Transactional
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #dto.specialProductId", cacheManager = "cacheManager")
-    public SpecialProductDto update(SpecialProductDto dto) {
-
-        validate(dto);
-
-        SpecialProduct sp = specialProductRepository.findById(dto.getSpecialProductId())
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+    public SpecialProductDto updateWithCache(SpecialProduct sp, SpecialProductDto dto) {
         sp.update(dto);
         return sp.toDto();
     }
 
     // 수정: 캐시 업데이트 반영 X
     @Transactional
-    public void updateNotCache(SpecialProductDto dto) {
-        validate(dto);
-
-        SpecialProduct sp = specialProductRepository.findById(dto.getSpecialProductId())
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
-
+    public void updateWithOutCache(SpecialProduct sp, SpecialProductDto dto) {
         sp.update(dto);
     }
 
@@ -154,18 +152,16 @@ public class SpecialProductService {
     // Soft 삭제 : 캐시 반영 O
     @Transactional
     @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
-    public SpecialProductDto delete(Long id) {
-        SpecialProduct sp = specialProductRepository.findById(id)
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+    public SpecialProductDto deleteWithCache(SpecialProduct sp) {
         sp.delete();
         return sp.toDto();
     }
 
     // Soft 삭제 : 캐시 반영 X
     @Transactional
-    public void deleteNotCache(Long id) {
-        SpecialProduct sp = specialProductRepository.findById(id)
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+    public void deleteWithOutCache(SpecialProduct sp) {
+//        SpecialProduct sp = specialProductRepository.findById(id)
+//                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.delete();
     }
 
@@ -174,13 +170,13 @@ public class SpecialProductService {
     @CachePut(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
     public SpecialProductDto approve(Long id) {
         SpecialProduct sp = specialProductRepository.findByIdUpcoming(id)
-                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
+                .orElseThrow(() -> new CustomException(UPCOMING_SPECIAL_PRODUCT_NOT_FOUND));
 
         // 이미 같은 Product에 ACTIVE 상태의 특가 상품이 있는지 확인
         validateAlreadyActiveProduct(sp.getProduct().getProductId());
-        
-        // 할인 종료일이 이미 지난 경우 예외 발생
+        //할인 종료일이 오늘보다 적으면 오류발생
         validateDiscountExpired(sp.getEndDate());
+
         sp.approve();
         return sp.toDto();
     }
@@ -206,22 +202,24 @@ public class SpecialProductService {
         }
     }
 
-    private void validate(SpecialProductDto dto) {
+    public void validate(SpecialProductDto dto) {
+        // 할인 종료일이 할인 시작일보다 이전이면 오류발생
+        validateEndDateBeforeStart(dto);
+        //할인 종료일이 오늘보다 적으면 오류발생
+        validateDiscountExpired(dto.getDiscountEndDate());
         // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
         validateOverDate(dto);
         //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
         validateOverLappingDate(dto);
-        // 할인 종료일이 할인 시작일보다 이전이면 오류발생
-        validateEndDateBeforeStart(dto);
     }
 
     private void validateDiscountExpired(LocalDate discountEndDate) {
         if (LocalDate.now().isAfter(discountEndDate)) {
-            throw new CustomException(DISCOUNT_PERIOD_EXPIRED);
+            throw new CustomException(CANNOT_APPLY_DISCOUNT_FOR_PAST_DATE);
         }
     }
 
-    private void validateOverDate(SpecialProductDto dto) {
+    public void validateOverDate(SpecialProductDto dto) {
         if (dto.getStartDate().isAfter(dto.getDiscountStartDate()) ||
                 dto.getEndDate().isBefore(dto.getDiscountEndDate())) {
             throw new CustomException(DISCOUNT_PERIOD_OUT_OF_PRODUCT_RANGE);
