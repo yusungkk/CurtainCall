@@ -42,7 +42,7 @@ public class ProductController {
 
 
     // 특가 상품 창에서 상품 검색
-    @GetMapping("/search")
+    @GetMapping("/products/special-products/search")
     public ResponseEntity<List<SpecialProductDto>> searchProducts(@RequestParam String keyword) {
         List<SpecialProductDto> products = productService.searchProductsByKeyword(keyword);
         return ResponseEntity.ok(products);
