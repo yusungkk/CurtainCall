@@ -103,6 +103,9 @@ public class ProductService {
             return productRepository.findByProductNameContaining(keyword, pageable)
                     .map(ProductResponseDto::fromEntity);
         } else {
+            if ("all".equals(genre)) {
+                return productRepository.findAllNotEnd(pageable);
+            }
             return productRepository.findByCategoryName(genre, pageable)
                     .map(ProductResponseDto::fromEntity);
         }
