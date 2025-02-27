@@ -17,7 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/recommend")
+@RequestMapping("/api/v1/recommend")
 @RequiredArgsConstructor
 public class UserRecommendController {
     private final UserRecommendService userRecommendService;
