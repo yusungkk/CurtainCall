@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -22,6 +23,8 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final ChatRepository chatRepository;
+    private final RedisTemplate<String, ChatMessageDto> redisTemplate;
+
 
     public void saveMessage(ChatMessageDto messageDto) {
 
@@ -52,5 +55,10 @@ public class ChatService {
                 .orElseGet(Collections::emptyList);
 
         return new PageImpl<>(content, pageRequest, totalCount);
+    }
+
+    public void sendMessage(String roomId, ChatMessageDto message) {
+        redisTemplate.convertAndSend("chatroom:" + roomId, message);
+        log.info("Published to Redis: roomId={}, message={}", roomId, message);
     }
 }

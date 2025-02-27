@@ -26,6 +26,7 @@ public class ChatController {
     public void sendMessage(@DestinationVariable String roomId, ChatMessageDto message) {
         log.info("[{}] {}: {}", roomId, message.getSender(), message.getContent());
         chatService.saveMessage(message);
+        chatService.sendMessage(roomId, message);
         template.convertAndSend("/queue/chat/" + roomId, message);
     }
 
