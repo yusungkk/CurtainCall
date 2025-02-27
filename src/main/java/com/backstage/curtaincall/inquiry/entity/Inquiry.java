@@ -27,7 +27,6 @@ public class Inquiry extends BaseEntity {
 
     private String title;
     private String content;
-    private String replyEmail;
 
     @Enumerated(STRING)
     private QuestionType type;
@@ -38,17 +37,16 @@ public class Inquiry extends BaseEntity {
     @OneToOne(fetch = LAZY, mappedBy = "inquiry")
     private InquiryReply reply;
 
-    private Inquiry(User user, String title, String content, String replyEmail, QuestionType type) {
+    private Inquiry(User user, String title, String content, QuestionType type) {
         this.user = user;
         this.title = title;
         this.content = content;
-        this.replyEmail = replyEmail;
         this.type = type;
         this.status = InquiryStatus.READY;
     }
 
-    public static Inquiry create(User user, String title, String content, String replyEmail, QuestionType type) {
-        return new Inquiry(user, title, content, replyEmail, type);
+    public static Inquiry create(User user, String title, String content, QuestionType type) {
+        return new Inquiry(user, title, content, type);
     }
 
     public void changeStatus() {

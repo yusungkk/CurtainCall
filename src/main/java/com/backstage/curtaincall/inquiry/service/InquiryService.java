@@ -32,8 +32,7 @@ public class InquiryService {
                 .orElseThrow(() -> new CustomException(USER_NOT_FOUND));
 
 
-        Inquiry inquiry = Inquiry.create(user, request.getTitle(), request.getContent(),
-                request.getReplayEmail(), getQuestionType(request.getQuestionType()));
+        Inquiry inquiry = Inquiry.create(user, request.getTitle(), request.getContent(), getQuestionType(request.getQuestionType()));
 
         inquiryRepository.save(inquiry);
     }

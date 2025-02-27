@@ -4,8 +4,6 @@ import lombok.Data;
 
 @Data
 public class CreateInquiryRequest {
-
-    private String replayEmail;
     private String questionType;
     private String title;
     private String content;
