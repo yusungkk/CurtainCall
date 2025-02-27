@@ -43,6 +43,10 @@ public class ChatService {
         chatRepository.save(chat);
     }
 
+    public void sendMessage(String roomId, ChatMessageDto message) {
+        redisTemplate.convertAndSend("chatroom:" + roomId, message);
+    }
+
     public Page<ChatMessageDto> findMessagesByRoomId(String roomId, int offset, int limit) {
         PageRequest pageRequest = PageRequest.of(offset, limit);
         long totalCount = chatRepository.getTotalCountById(roomId);
@@ -57,8 +61,5 @@ public class ChatService {
         return new PageImpl<>(content, pageRequest, totalCount);
     }
 
-    public void sendMessage(String roomId, ChatMessageDto message) {
-        redisTemplate.convertAndSend("chatroom:" + roomId, message);
-        log.info("Published to Redis: roomId={}, message={}", roomId, message);
-    }
+
 }
