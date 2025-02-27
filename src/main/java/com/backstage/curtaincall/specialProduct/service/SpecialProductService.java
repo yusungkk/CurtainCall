@@ -151,7 +151,7 @@ public class SpecialProductService {
 
     // Soft 삭제 : 캐시 반영 O
     @Transactional
-    @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #id", cacheManager = "cacheManager")
+    @CacheEvict(cacheNames = "specialProductCache", key = "'specialProduct:' + #sp.id", cacheManager = "cacheManager")
     public SpecialProductDto deleteWithCache(SpecialProduct sp) {
         sp.delete();
         return sp.toDto();
@@ -160,8 +160,6 @@ public class SpecialProductService {
     // Soft 삭제 : 캐시 반영 X
     @Transactional
     public void deleteWithOutCache(SpecialProduct sp) {
-//        SpecialProduct sp = specialProductRepository.findById(id)
-//                .orElseThrow(() -> new CustomException(SPECIAL_PRODUCT_NOT_FOUND));
         sp.delete();
     }
 

@@ -11,10 +11,12 @@ import com.backstage.curtaincall.specialProduct.service.SpecialProductService;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class SpecialProductUpdateHandler {
 
     private final SpecialProductService specialProductService;
