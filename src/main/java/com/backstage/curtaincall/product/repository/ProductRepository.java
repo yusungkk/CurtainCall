@@ -10,12 +10,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findAll(Pageable pageable);
 
-    @Query("select p from Product p where p.productName = :productName and p.endDate >= CURRENT_DATE ")
+    @Query("select p from Product p where p.productName like %:productName% and p.endDate >= CURRENT_DATE ")
     Page<Product> findByProductNameContaining(String productName, Pageable pageable);
 
     @Query("SELECT DISTINCT p FROM Product p " +

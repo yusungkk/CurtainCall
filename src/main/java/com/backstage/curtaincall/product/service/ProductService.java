@@ -99,7 +99,7 @@ public class ProductService {
     public Page<ProductResponseDto> searchProducts(String keyword, String genre, int page, int size, String sortBy, String direction) {
         Pageable pageable = sortPage(page, size, sortBy, direction);
 
-        if (genre.isEmpty()) {
+        if (genre == null) {
             return productRepository.findByProductNameContaining(keyword, pageable)
                     .map(ProductResponseDto::fromEntity);
         } else {
