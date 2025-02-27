@@ -46,6 +46,8 @@ public class InquiryRepositoryImpl implements InquiryCustomRepository {
                         questionTypeEq(searchCond.getQuestionType()),
                         statusEq(searchCond.getStatus())
                 )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
         Long total = queryFactory.select(inquiry.count())
