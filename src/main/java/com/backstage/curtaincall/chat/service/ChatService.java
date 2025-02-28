@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final ChatRepository chatRepository;
+    private final ChannelTopic channelTopic;
     private final RedisTemplate<String, ChatMessageDto> redisTemplate;
 
 
@@ -43,8 +45,8 @@ public class ChatService {
         chatRepository.save(chat);
     }
 
-    public void sendMessage(String roomId, ChatMessageDto message) {
-        redisTemplate.convertAndSend("chatroom:" + roomId, message);
+    public void sendMessage(ChatMessageDto message) {
+        redisTemplate.convertAndSend(channelTopic.getTopic(), message);
     }
 
     public Page<ChatMessageDto> findMessagesByRoomId(String roomId, int offset, int limit) {
