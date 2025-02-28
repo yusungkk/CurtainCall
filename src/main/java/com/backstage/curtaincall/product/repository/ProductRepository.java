@@ -1,6 +1,5 @@
 package com.backstage.curtaincall.product.repository;
 
-import com.backstage.curtaincall.product.dto.ProductResponseDto;
 import com.backstage.curtaincall.product.entity.Product;
 import java.util.List;
 import java.util.Optional;
@@ -27,12 +26,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findTop5ByCategoryIdOrderBySalesCountDesc(Long mostClickedCategory);
 
-    @Query("select p from Product p join p.category c1 join c1.parent c2 where c2.name = :genre")
+    @Query("select p from Product p join p.category c1 join c1.parent c2 where c2.name = :genre and p.endDate >= CURRENT_DATE ")
     Page<Product> findByCategoryName(String genre, Pageable pageable);
 
     // 상품 이름으로 검색
     List<Product> findByProductNameContaining(String keyword);
 
     @Query("select p from Product p where p.endDate >= CURRENT_DATE")
-    Page<ProductResponseDto> findAllNotEnd(Pageable pageable);
+    Page<Product> findAllNotEnd(Pageable pageable);
 }

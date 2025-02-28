@@ -172,8 +172,9 @@ public class SpecialProductService {
 
         // 이미 같은 Product에 ACTIVE 상태의 특가 상품이 있는지 확인
         validateAlreadyActiveProduct(sp.getProduct().getProductId());
-        //할인 종료일이 오늘보다 적으면 오류발생
-        validateDiscountExpired(sp.getEndDate());
+
+        //할인 시작일이나 할인 종료일이 오늘보다 적으면 오류발생
+        validateDiscountExpired(sp.getStartDate(),sp.getEndDate());
 
         sp.approve();
         return sp.toDto();
@@ -203,16 +204,17 @@ public class SpecialProductService {
     public void validate(SpecialProductDto dto) {
         // 할인 종료일이 할인 시작일보다 이전이면 오류발생
         validateEndDateBeforeStart(dto);
-        //할인 종료일이 오늘보다 적으면 오류발생
-        validateDiscountExpired(dto.getDiscountEndDate());
+        //할인 시작일이나 할인 종료일이 오늘보다 적으면 오류발생
+        validateDiscountExpired(dto.getStartDate(),dto.getDiscountEndDate());
         // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
         validateOverDate(dto);
         //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
         validateOverLappingDate(dto);
     }
 
-    private void validateDiscountExpired(LocalDate discountEndDate) {
-        if (LocalDate.now().isAfter(discountEndDate)) {
+    private void validateDiscountExpired(LocalDate discountStartDate, LocalDate discountEndDate) {
+        LocalDate now = LocalDate.now();
+        if (now.isAfter(discountStartDate) || now.isAfter(discountEndDate)) {
             throw new CustomException(CANNOT_APPLY_DISCOUNT_FOR_PAST_DATE);
         }
     }
