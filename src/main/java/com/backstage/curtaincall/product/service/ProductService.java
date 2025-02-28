@@ -104,7 +104,8 @@ public class ProductService {
                     .map(ProductResponseDto::fromEntity);
         } else {
             if ("all".equals(genre)) {
-                return productRepository.findAllNotEnd(pageable);
+                return productRepository.findAllNotEnd(pageable)
+                        .map(ProductResponseDto::fromEntity);
             }
             return productRepository.findByCategoryName(genre, pageable)
                     .map(ProductResponseDto::fromEntity);
