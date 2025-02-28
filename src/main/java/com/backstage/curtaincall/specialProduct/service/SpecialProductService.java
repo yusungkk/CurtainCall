@@ -205,7 +205,7 @@ public class SpecialProductService {
         // 할인 종료일이 할인 시작일보다 이전이면 오류발생
         validateEndDateBeforeStart(dto);
         //할인 시작일이나 할인 종료일이 오늘보다 적으면 오류발생
-        validateDiscountExpired(dto.getStartDate(),dto.getDiscountEndDate());
+        validateDiscountExpired(dto.getDiscountStartDate(),dto.getDiscountEndDate());
         // 할인 날짜가 공연날짜 범위를 벗어나면 오류발생
         validateOverDate(dto);
         //한 상품에 2개의 할인적용 날짜가 겹치면 오류발생
